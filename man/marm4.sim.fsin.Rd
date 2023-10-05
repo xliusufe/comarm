@@ -90,7 +90,7 @@ This function can generate scenario II data of structural marm model. \code{isfi
   marm4.sim.fbs
 }
 \examples{
-library(Mulste)
+library(mulste)
 n <- 200; q <- 5; p <- 100; s <- 3; ng = 4
 group <- rep(1:ng,each=p/ng)
 mydata <- marm4.sim.fsin(n,q,p,s,group)

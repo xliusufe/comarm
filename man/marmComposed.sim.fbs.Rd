@@ -113,7 +113,7 @@ This function can generate scenario I data of composed model. \code{isfixedR} is
   marmComposed.sim.fsin
 }
 \examples{
-library(Mulste)
+library(mulste)
 n <- 200; q <- 5; p <- 100; s1 <- 5; s2 <- 3; G1 <- 1; ng = 4
 group <- rep(1:ng,each=p/ng)
 mydata <- marmComposed.sim.fbs(n,q,p,s1,s2,G1,group)

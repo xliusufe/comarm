@@ -115,7 +115,7 @@ marm3 <- function(Y,X,group=NULL,K=6,r1=NULL,r2=NULL,r3=NULL,
 }
 
 \examples{
-library(Mulste)
+library(mulste)
 n <- 200; q <- 5; p <- 100; s <- 3; ng <- 4
 group <- rep(1:ng,each=p/ng)
 mydata <- marm3.sim.fbs(n,q,p,s,group,isfixedR=1)
