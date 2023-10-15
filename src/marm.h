@@ -33,9 +33,9 @@ struct Options
 	double eps;
 	double eps1;
 	int max_step;
-    int max_step1;
-    int max_step1_t3;
-    int max_step1_t4;
+  int max_step1;
+  int max_step1_t3;
+  int max_step1_t4;
 }opts;
 //----------------------------------------------------------------**
 //***----------------------parameters for penalization---------------**
@@ -44,14 +44,14 @@ struct Options_pen
 	int pen; 
 	int nlam;
     int dfmax;
-    int dfmax1;
-    int dfmax2;
+  int dfmax1;
+  int dfmax2;
 	int isPenColumn;
 	double lam_max;
 	double lam_min;
 	double alpha;
 	double gamma;
-    double vnorm_ratio;
+  double vnorm_ratio;
 }opts_pen;
 //----------------------------------------------------------------**
 //***----------------------------sequece--------------------------**

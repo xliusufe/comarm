@@ -1,7 +1,7 @@
 # mulste
- High-dimensional multi-view learning via structural tensor estimation.
+Multi-omics data integration with multi-view learning via composed tensors.
  
-  In the multivariate additive model (MARM) for a multi-view data, the B-splines are applied to approximate the component functions. We treat the coefficients as multiple third-order tensors or even a fourth-order tensor in some specific conditions (called structural MARM). The composed model can also be used when the number of covariates in each view is not equal. With the tensor low-rankness, the Tucker decomposition and group sparse penalty (lasso, mcp or scad) reduce the number of parameters. An alternative updating algorithm based on the coordinate descent strategy is used to estimate the core tensors and factor matrices, and further additive functions.
+  In the multivariate additive model (MARM) for a multi-view data, the B-splines are applied to approximate the component functions. We treat the coefficients as multiple third-order tensors (MARM) or a fourth-order tensor. The composed model (COMARM) can be used when the number of covariates in each view is not equal. With the tensor low-rankness, the Tucker decomposition and group sparse penalty (lasso, mcp or scad) reduce the number of parameters. An alternative updating algorithm based on the coordinate descent strategy is used to estimate the core tensors and factor matrices, and further additive functions.
 # Installation
 
     #install Rtools 3.5 (http://cran.r-project.org/bin/windows/Rtools)
@@ -61,7 +61,7 @@
 
  
  # References
-High-dimensional multi-view learning via structural tensor estimation. Manuscript.
+Multi-omics data integration with multi-view learning via composed tensors. Manuscript.
 
 # Development
 The R-package is developed by Xu Liu (liu.xu@sufe.edu.cn) and Yiming Liu.

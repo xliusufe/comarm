@@ -11,7 +11,7 @@ Author: Xu Liu [aut,cre],
         Xiao Zhang [aut],
         Xingjie Shi [ctb]
 Maintainer: Xu Liu <liu.xu@sufe.edu.cn>
-Description: High-dimensional multi-view learning via structural tensor estimation. The B-splines are used to approximate component functions. The spline coefficients are rearranged into multiple third-order tensors or even a fourth-order tensor with low-rankness under some specific conditions. Dimension reduction can be achieved by Tucker decomposition and group sparse penalty, for example, LASSO, MCP or SCAD. 
+Description: Multi-omics data integration with multi-view learning via composed tensors. The B-splines are used to approximate component functions. The spline coefficients are rearranged into multiple third-order tensors (MARM) or even a fourth-order tensor. The composed model (COMARM) can be used when the number of covariates in each view is not equal. Dimension reduction can be achieved by Tucker decomposition and group sparse penalty, for example, LASSO, MCP or SCAD. 
 License: GPL (>= 2)
 Imports: splines, Rcpp (>= 0.11.15), RcppEigen (>= 0.3.2.3.0)
 LinkingTo: Rcpp, RcppEigen
@@ -20,4 +20,4 @@ NeedsCompilation: yes
 Repository: github
 URL: https://github.com/xliusufe/mulste
 Encoding: UTF-8
-Packaged: 2021-10-20 02:11:21 UTC; admin
+Packaged: 2023-10-14 23:40:17 UTC; liuyiming
