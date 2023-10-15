@@ -1655,7 +1655,6 @@ List EstPenColumnComposed1(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
     
     
     for (l = 0; l < nlam; l++) {
-        Rcout << "start nlam=" << l << std::endl;
         lambda1 = lambda[l];
         lambda2 = lambda1*vnorm_ratio;
         step = 0;
@@ -1667,7 +1666,6 @@ List EstPenColumnComposed1(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
             D0_t3 = C_t3 * S_t3 * kroneckerProduct(B_t3, A_t3).transpose();
             Ynew_t3 = Ynew_t3 - Zj_t3*D0_t3.transpose();
         }
-        Rcout << "start estimate t3 " << std::endl;
         while(step < max_step){
             for(j=0;j<4*ng1;j++) convergence1_t3[j] = 1;
             for(j=0;j<ng1;j++) breakid_t3[j] = 0;
@@ -1687,13 +1685,11 @@ List EstPenColumnComposed1(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
                 Ynew_t3 = Ynew_t3 - Zj_t3 * Dnew_t3.transpose();
                 S0_t3[i] = S_t3; A0_t3[i] = A_t3; B0_t3[i] = B_t3; C0_t3[i] = C_t3; Zm_t3[i] = Zj1_t3; Am_t3[i] = A1_t3;
             }
-            Rcout << "start estimate t4 " << std::endl;
             // estimate t4
             likhd0 = likhd1;
             Ynew_t4 = Ynew_t3 + Z1_t4 * Dn_t4.transpose();
             for(j=0;j<5;j++) convergence1_t4[j] = 1;
             
-            Rcout << "start estimate t4 Snew" << std::endl;
             Snew_t4 = updateT4S(Ynew_t4, Z1_t4, A1_t4, B_t4, C_t4, D_t4);
             Dn_t4 = D_t4 * Snew_t4 * kroneckerProduct(C_t4,kroneckerProduct(B_t4, A1_t4)).transpose();
             likhd1 = (Ynew_t4 - Z1_t4 * Dn_t4.transpose()).squaredNorm();
@@ -1702,8 +1698,7 @@ List EstPenColumnComposed1(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
                 likhd0 = likhd1;
             }
             else convergence1_t4[0]=0;
-            
-            Rcout << "start estimate t4 Dnew" << std::endl;
+  
             Dnew_t4 = updateT4D(Ynew_t4, Z1_t4, S_t4, A1_t4, B_t4, C_t4, D_t4);
             Dn_t4 = Dnew_t4 * S_t4*kroneckerProduct(C_t4,kroneckerProduct(B_t4, A1_t4)).transpose();
             likhd1 = (Ynew_t4 - Z1_t4 * Dn_t4.transpose()).squaredNorm();
@@ -1712,8 +1707,7 @@ List EstPenColumnComposed1(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
                 likhd0 = likhd1;
             }
             else convergence1_t4[1]=0;
-            
-            Rcout << "start estimate t4 Cnew" << std::endl;
+
             Cnew_t4 = updateT4C(Ynew_t4, Z1_t4, S_t4, A1_t4, B_t4, C_t4, D_t4);
             Dn_t4 = D_t4 * S_t4 * kroneckerProduct(Cnew_t4,kroneckerProduct(B_t4, A1_t4)).transpose();
             likhd1 = (Ynew_t4 - Z1_t4 * Dn_t4.transpose()).squaredNorm();
@@ -1723,7 +1717,6 @@ List EstPenColumnComposed1(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
             }
             else convergence1_t4[2]=0;
             
-            Rcout << "start estimate t4 Bnew" << std::endl;
             Bnew_t4 = updateT4B(Ynew_t4, Z1_t4, S_t4, A1_t4, B_t4, C_t4, D_t4);
             Dn_t4 = D_t4 * S_t4 * kroneckerProduct(C_t4,kroneckerProduct(Bnew_t4, A1_t4)).transpose();
             likhd1 = (Ynew_t4 - Z1_t4 * Dn_t4.transpose()).squaredNorm();
@@ -1733,7 +1726,6 @@ List EstPenColumnComposed1(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
             }
             else convergence1_t4[3]=0;
             
-            Rcout << "start estimate t4 Anew" << std::endl;
             for(j=0;j<p2;j++) activeA_t4[j] = 0;
             Anew_t4 = updateT4A_penalty(Ynew_t4, Z_t4, S_t4, A_t4, B_t4, C_t4, D_t4, betapath_t4, activeA_t4, lambda2);
             if(activeA_t4.sum()<r1){
