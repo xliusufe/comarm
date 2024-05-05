@@ -2,58 +2,58 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 Estimation <- function(Y, Z0, Sinit, Ainit, Binit, Cinit, optsList) {
-    .Call(`_mulste_Estimation`, Y, Z0, Sinit, Ainit, Binit, Cinit, optsList)
+    .Call(`_comarm_Estimation`, Y, Z0, Sinit, Ainit, Binit, Cinit, optsList)
 }
 
 setuplambda <- function(Y, Z0, Sinit, Ainit, Binit, Cinit, nx, ng, nlam, setlam) {
-    .Call(`_mulste_setuplambda`, Y, Z0, Sinit, Ainit, Binit, Cinit, nx, ng, nlam, setlam)
+    .Call(`_comarm_setuplambda`, Y, Z0, Sinit, Ainit, Binit, Cinit, nx, ng, nlam, setlam)
 }
 
 EstPenColumn <- function(Y, Z0, Sinit, Ainit, Binit, Cinit, lambda, optsList, optsList_pen) {
-    .Call(`_mulste_EstPenColumn`, Y, Z0, Sinit, Ainit, Binit, Cinit, lambda, optsList, optsList_pen)
+    .Call(`_comarm_EstPenColumn`, Y, Z0, Sinit, Ainit, Binit, Cinit, lambda, optsList, optsList_pen)
 }
 
 EstPenColumnCV <- function(Y, Z0, Ytest, Ztest0, Sinit, Ainit, Binit, Cinit, lambda, optsList, optsList_pen) {
-    .Call(`_mulste_EstPenColumnCV`, Y, Z0, Ytest, Ztest0, Sinit, Ainit, Binit, Cinit, lambda, optsList, optsList_pen)
+    .Call(`_comarm_EstPenColumnCV`, Y, Z0, Ytest, Ztest0, Sinit, Ainit, Binit, Cinit, lambda, optsList, optsList_pen)
 }
 
 EstimationT4 <- function(Y, Z, S, A, B, C, D, optsList) {
-    .Call(`_mulste_EstimationT4`, Y, Z, S, A, B, C, D, optsList)
+    .Call(`_comarm_EstimationT4`, Y, Z, S, A, B, C, D, optsList)
 }
 
 setuplambdaT4 <- function(Y, Z, S, A, B, C, D, nlam, setlam) {
-    .Call(`_mulste_setuplambdaT4`, Y, Z, S, A, B, C, D, nlam, setlam)
+    .Call(`_comarm_setuplambdaT4`, Y, Z, S, A, B, C, D, nlam, setlam)
 }
 
 EstPenColumnT4 <- function(Y, Z, S, A, B, C, D, lambda, optsList, optsList_pen) {
-    .Call(`_mulste_EstPenColumnT4`, Y, Z, S, A, B, C, D, lambda, optsList, optsList_pen)
+    .Call(`_comarm_EstPenColumnT4`, Y, Z, S, A, B, C, D, lambda, optsList, optsList_pen)
 }
 
 EstPenColumnT4CV <- function(Y, Z, Ytest, Ztest, S, A, B, C, D, lambda, optsList, optsList_pen) {
-    .Call(`_mulste_EstPenColumnT4CV`, Y, Z, Ytest, Ztest, S, A, B, C, D, lambda, optsList, optsList_pen)
+    .Call(`_comarm_EstPenColumnT4CV`, Y, Z, Ytest, Ztest, S, A, B, C, D, lambda, optsList, optsList_pen)
 }
 
 setuplambdaV <- function(Y, Z0, Sinit, Ainit, Binit, Cinit, Z, S, A, B, C, D, nx1, ng1, nlam, setlam) {
-    .Call(`_mulste_setuplambdaV`, Y, Z0, Sinit, Ainit, Binit, Cinit, Z, S, A, B, C, D, nx1, ng1, nlam, setlam)
+    .Call(`_comarm_setuplambdaV`, Y, Z0, Sinit, Ainit, Binit, Cinit, Z, S, A, B, C, D, nx1, ng1, nlam, setlam)
 }
 
 EstPenColumnComposed1 <- function(Y, Z0, Sinit, Ainit, Binit, Cinit, Z, S, A, B, C, D, lambda, optsList, optsList_pen) {
-    .Call(`_mulste_EstPenColumnComposed1`, Y, Z0, Sinit, Ainit, Binit, Cinit, Z, S, A, B, C, D, lambda, optsList, optsList_pen)
+    .Call(`_comarm_EstPenColumnComposed1`, Y, Z0, Sinit, Ainit, Binit, Cinit, Z, S, A, B, C, D, lambda, optsList, optsList_pen)
 }
 
 EstPenColumnComposed2 <- function(Y, Z0, Sinit, Ainit, Binit, Cinit, Z, S, A, B, C, D, lambda, optsList, optsList_pen) {
-    .Call(`_mulste_EstPenColumnComposed2`, Y, Z0, Sinit, Ainit, Binit, Cinit, Z, S, A, B, C, D, lambda, optsList, optsList_pen)
+    .Call(`_comarm_EstPenColumnComposed2`, Y, Z0, Sinit, Ainit, Binit, Cinit, Z, S, A, B, C, D, lambda, optsList, optsList_pen)
 }
 
 EstPenColumnComposed1CV <- function(Y, Z0, Z, Ytest, Ztest0, Ztest, Sinit, Ainit, Binit, Cinit, S, A, B, C, D, lambda, optsList, optsList_pen) {
-    .Call(`_mulste_EstPenColumnComposed1CV`, Y, Z0, Z, Ytest, Ztest0, Ztest, Sinit, Ainit, Binit, Cinit, S, A, B, C, D, lambda, optsList, optsList_pen)
+    .Call(`_comarm_EstPenColumnComposed1CV`, Y, Z0, Z, Ytest, Ztest0, Ztest, Sinit, Ainit, Binit, Cinit, S, A, B, C, D, lambda, optsList, optsList_pen)
 }
 
 EstPenColumnComposed2CV <- function(Y, Z0, Z, Ytest, Ztest0, Ztest, Sinit, Ainit, Binit, Cinit, S, A, B, C, D, lambda, optsList, optsList_pen) {
-    .Call(`_mulste_EstPenColumnComposed2CV`, Y, Z0, Z, Ytest, Ztest0, Ztest, Sinit, Ainit, Binit, Cinit, S, A, B, C, D, lambda, optsList, optsList_pen)
+    .Call(`_comarm_EstPenColumnComposed2CV`, Y, Z0, Z, Ytest, Ztest0, Ztest, Sinit, Ainit, Binit, Cinit, S, A, B, C, D, lambda, optsList, optsList_pen)
 }
 
 TransferModalUnfoldingsT <- function(S, d1, d2, dim) {
-    .Call(`_mulste_TransferModalUnfoldingsT`, S, d1, d2, dim)
+    .Call(`_comarm_TransferModalUnfoldingsT`, S, d1, d2, dim)
 }
 

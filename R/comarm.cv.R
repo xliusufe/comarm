@@ -1,6 +1,6 @@
 
 ##--------------Estimation with Penalty by CV----------------------##
-marmComposed.cv <- 
+comarm.cv <- 
   function(Y,X1,X2,G1,group,ncv,K_index,r_index,lambda,D0_t3,D0_t4,intercept,opts,opts_pen){
     is.fabs = opts$is.fabs
     n = opts$n

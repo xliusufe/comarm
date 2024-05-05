@@ -1,6 +1,6 @@
-\name{mulste-package}
-\alias{mulste-package}
-\alias{mulste}
+\name{comarm-package}
+\alias{comarm-package}
+\alias{comarm}
 \docType{package}
 \title{
   Multi-omics data integration with multi-view learning via composed tensors

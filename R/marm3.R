@@ -1,6 +1,79 @@
-marm3 <- 
-  function(Y,X,group=NULL,K=6,r1=NULL,r2=NULL,r3=NULL,method="BIC",ncv=10,penalty="LASSO",lambda=NULL,D0=NULL,
-           intercept=TRUE,degr=3,nlam=20,lam_min=0.01,eps=1e-4,max_step=20, eps1=1e-4,max_step1=20,gamma=2,dfmax=NULL,alpha=1){
+#' Fit MARM with sparsity assumption and fixed ranks.
+#'
+#' Fit a multivariate additive model for multi-view data (MARM) using B-splines with given ranks (\eqn{r_{1g}, r_{2g}, r_{3g}}). 
+#' Multiple third-order coefficient tensors can be estimated by this function. The group sparse penalty such as LASSO, MCP or SCAD 
+#' and the coordinate descent algorithm are used to yield a sparsity estimator. The BIC or cross-validation method are used to 
+#' search the optimal regularization parameter.
+#'
+#' @param Y A \eqn{n \times q} numeric matrix of responses.
+#' @param X A \eqn{n \times p} numeric design matrix for the model, where \eqn{p = \sum_{g} p_g}.
+#' @param group A \eqn{p} vector of the grouping index of predictors, e.g., \eqn{group = c(1,1,1,2,2,2)} means there are 
+#'        \eqn{6} predictors in the model, and the first three predictors are in the same group and the last three predictors are 
+#'        in another one. By default, we set \eqn{group = rep(1, p)}.
+#' @param K The number of B-spline basis functions, that is the sum of both degrees of basis functions and the number of knots. 
+#'        Default is \code{6}, which means cubic spline.
+#' @param r1 The first dimension of the singular value matrix of the tensor. Default is \code{2}.
+#' @param r2 The second dimension of the singular value matrix of the tensor. Default is \code{2}.
+#' @param r3 The third dimension of the singular value matrix of the tensor. Default is \code{2}.
+#' @param method The method to be applied to select regularization parameters. Either \code{BIC} (default), or \code{CV}.
+#' @param ncv The number of cross-validation folds. Default is \code{10}. If \code{method} is not \code{CV}, \code{ncv} is useless.
+#' @param penalty The penalty to be applied to the model. Either \code{LASSO} (the default), \code{MCP} or \code{SCAD}.
+#' @param lambda A user-specified sequence of lambda values. By default, a sequence of values of length \code{nlam} is computed, 
+#'        equally spaced on the log scale.
+#' @param D0 A user-specified list of initialized values, including \code{ng} sub-lists where ng is the number of groups. 
+#'        For each sub-list, it has four initialized matrices \code{S_{(3)}} (called \code{S}), \code{A}, \code{B}, and \code{C}. 
+#'        By default, a list of initialization satisfying fixed ranks is computed by random.
+#' @param intercept A logical value indicating whether the intercept is fitted. Default is \code{TRUE} or set to zero by \code{FALSE}.
+#' @param degr The number of knots of B-spline base function. Default is \code{3}.
+#' @param nlam The number of lambda values. Default is \code{20}.
+#' @param lam_min The smallest value for lambda, as a fraction of lambda.max. Default is \code{0.01}.
+#' @param eps Convergence threshold. The algorithm iterates until the relative change in any coefficient is less than \code{eps}. 
+#'        Default is \code{1e-4}.
+#' @param max_step Maximum number of iterations. Default is \code{20}.
+#' @param eps1 Convergence threshold. The Coordinate descent method algorithm iterates until the relative change in any coefficient 
+#'        is less than \code{eps1}. Default is \code{1e-4}.
+#' @param max_step1 The maximum number of iterates for the coordinate descent method. Default is \code{20}.
+#' @param gamma The tuning parameter of the MCP/SCAD penalty.
+#' @param dfmax Upper bound for the number of nonzero coefficients. Default is no upper bound. However, for large data sets, 
+#'        computational burden may be heavy for models with a large number of nonzero coefficients.
+#' @param alpha Tuning parameter for the Mnet estimator which controls the relative contributions from the LASSO, MCP or SCAD 
+#'        penalty and the ridge, or L2 penalty. \code{alpha = 1} is equivalent to LASSO, MCP or SCAD penalty, while \code{alpha = 0} 
+#'        would be equivalent to ridge regression. However, \code{alpha = 0} is not supported; \code{alpha} may be arbitrarily small, 
+#'        but not exactly 0.
+#'
+#' @return A list containing the following components:
+#' \itemize{
+#'   \item{D}{Estimator of coefficients \eqn{D_{(3)} = (D^1_{(3)}, ..., D^{ng}_{(3)})} where \eqn{ng} is the number of groups.}
+#'   \item{mu}{Estimator of intercept \eqn{\mu}.}
+#'   \item{S.opt}{A length-\eqn{ng} list including estimator of the core tensor \eqn{S_{(3)}} of each coefficient tensor.}
+#'   \item{A.opt}{A length-\eqn{ng} list including estimator of the factor matrix \eqn{A} of each coefficient tensor.}
+#'   \item{B.opt}{A length-\eqn{ng} list including estimator of the factor matrix \eqn{B} of each coefficient tensor.}
+#'   \item{C.opt}{A length-\eqn{ng} list including estimator of the factor matrix \eqn{C} of each coefficient tensor.}
+#'   \item{lambda.seq}{The sequence of regularization parameter values in the path.}
+#'   \item{lambda_opt}{The value of \code{lambda} with the minimum \code{BIC} or \code{CV} value.}
+#'   \item{rss}{Residual sum of squares (RSS).}
+#'   \item{df}{Degrees of freedom.}
+#'   \item{activeX}{The active set of \eqn{X}. A length-\eqn{p} vector.}
+#'   \item{opts}{Other related parameters used in algorithm. Some of them are set by default.}
+#'   \item{opts_pen}{Other related parameters used in algorithm (especially parameters in penalty). Some of them are set by default.}
+#' }
+#' 
+#' @examples
+#' library(comarm)
+#' n <- 200; q <- 5; p <- 100; s <- 3; ng <- 4
+#' group <- rep(1:ng, each = p/ng)
+#' mydata <- marm3.sim.fbs(n, q, p, s, group, isfixedR = 1)
+#' fit <- with(mydata, marm3(Y, X, group, K, r10, r20, r30, D0 = D0, nlam = 5))
+#' 
+#' @seealso \code{\link{marm3.dr}}
+#' 
+#' @useDynLib comarm, .registration = TRUE
+#' @export
+marm3 <- function(Y, X, group = NULL, K = 6, r1 = NULL, r2 = NULL, r3 = NULL,
+                  method = "BIC", ncv = 10, penalty = "LASSO", lambda = NULL, D0 = NULL,
+                  intercept = TRUE, degr = 3, nlam = 20, lam_min = 0.01,
+                  eps = 1e-4, max_step = 20, eps1 = 1e-4, max_step1 = 20,
+                  gamma = 2, dfmax = NULL, alpha = 1) {
     n <- dim(Y)[1]
     q <- dim(Y)[2]
     nx <- ncol(X)

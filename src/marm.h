@@ -55,17 +55,17 @@ struct Options_pen
 }opts_pen;
 //----------------------------------------------------------------**
 //***----------------------------sequece--------------------------**
-VectorXi SEQ(int min, int max, int by)
+Eigen::VectorXi SEQ(int min, int max, int by)
 {
 	int leng = static_cast<int>(floor((max - min) / by + pow(3, -12)) + 1);
-	VectorXi C = VectorXi::Constant(leng, 0);
+	Eigen::VectorXi C = Eigen::VectorXi::Constant(leng, 0);
 	for (int i = 0; i < leng; i++)
 		C[i] = min + by * i;
 	return C;
 }
 //----------------------------------------------------------------**
 //***----------------------uppertriangleNorm1 of AA---------------**
-double uppertriangleNorm1AA(MatrixXd A)
+double uppertriangleNorm1AA(Eigen::MatrixXd A)
 {
 	int i, j, k, p, ii;
 	double norm1 = 0, temp1, temp2;
@@ -85,7 +85,7 @@ double uppertriangleNorm1AA(MatrixXd A)
 }
 //----------------------------------------------------------------**
 //***----------------------uppertriangleNorm1 of A----------------**
-double uppertriangleNorm1(MatrixXd A)
+double uppertriangleNorm1(Eigen::MatrixXd A)
 {
 	int j, k, p;
 	double norm1 = 0, temp1;
@@ -103,10 +103,10 @@ double uppertriangleNorm1(MatrixXd A)
 
 //----------------------------------------------------------------**
 //***----------------------UpTriangularInv------------------------**
-MatrixXd UpTriangularInv(MatrixXd A)
+Eigen::MatrixXd UpTriangularInv(Eigen::MatrixXd A)
 {
 	int i, j, k,n=A.cols();
-	MatrixXd B = MatrixXd::Constant(n, n, 0);
+	Eigen::MatrixXd B = Eigen::MatrixXd::Constant(n, n, 0);
 	for (i = 0; i < n; i++) B(i, i) = 1;
 	for (i = n - 1; i >= 0; i--)//rows
 	{
@@ -124,7 +124,7 @@ MatrixXd UpTriangularInv(MatrixXd A)
 }
 //----------------------------------------------------------------**
 //***---------------------- Norm1 of a Matrix---------------------**
-double MatrixNorm1(MatrixXd A)
+double MatrixNorm1(Eigen::MatrixXd A)
 {
   int j, k, p;
   double norm1 = 0, temp1;
@@ -139,12 +139,12 @@ double MatrixNorm1(MatrixXd A)
 }
 //----------------------------------------------------------------**
 //***---------------------- Q*R of qr decomposition --------------**
-MatrixXd QbyR(MatrixXd Q, MatrixXd R, int isQR)
+Eigen::MatrixXd QbyR(Eigen::MatrixXd Q, Eigen::MatrixXd R, int isQR)
 {
 	//isQR=1 denotes Q*R; otherwise R*Q
 	int i, j, k, p = R.cols(),n;
 	double temp1;
-	MatrixXd A = Q;
+	Eigen::MatrixXd A = Q;
 	if(isQR){
 		n = Q.rows();
 		for (k = 0; k < p; k++)
@@ -167,11 +167,11 @@ MatrixXd QbyR(MatrixXd Q, MatrixXd R, int isQR)
 }
 //----------------------------------------------------------------**
 //***---------------------- R*R of Upper triangle ----------------**
-MatrixXd tRbyR(MatrixXd R)
+Eigen::MatrixXd tRbyR(Eigen::MatrixXd R)
 {
   int i, j, k, ii, p;
   double temp1;
-  MatrixXd A = R;
+  Eigen::MatrixXd A = R;
   p = R.cols();
   
   for (k = 0; k < p; k++) {
@@ -186,24 +186,24 @@ MatrixXd tRbyR(MatrixXd R)
 }
 //----------------------------------------------------------------**
 //***----------------------cbind----------------------------------**
-MatrixXd cbind_rcpp(MatrixXd A, MatrixXd B)
+Eigen::MatrixXd cbind_rcpp(Eigen::MatrixXd A, Eigen::MatrixXd B)
 {
 	int n = A.rows();
 	int p1 = A.cols();
 	int p2 = B.cols();
-	MatrixXd C = MatrixXd::Constant(n, p1 + p2, 0);
+	Eigen::MatrixXd C = Eigen::MatrixXd::Constant(n, p1 + p2, 0);
 	C.block(0, 0, n, p1) = A;
 	C.block(0, p1, n, p2) = B;
 	return C;
 }
 //----------------------------------------------------------------**
 //***----------------------rbind----------------------------------**
-MatrixXd rbind_rcpp(MatrixXd A, MatrixXd B)
+Eigen::MatrixXd rbind_rcpp(Eigen::MatrixXd A, Eigen::MatrixXd B)
 {
 	int n1 = A.rows();
 	int n2 = B.rows();
 	int p = A.cols();
-	MatrixXd C = MatrixXd::Constant(n1 + n2, p, 0);
+	Eigen::MatrixXd C = Eigen::MatrixXd::Constant(n1 + n2, p, 0);
 	C.block(0, 0, n1, p) = A;
 	C.block(n1, 0, n2, p) = B;
 	return C;
@@ -211,21 +211,21 @@ MatrixXd rbind_rcpp(MatrixXd A, MatrixXd B)
 
 //----------------------------------------------------------------**
 //***----------------------extract columns------------------------**
-MatrixXd extractRows(MatrixXd A, VectorXi b)
+Eigen::MatrixXd extractRows(Eigen::MatrixXd A, Eigen::VectorXi b)
 {
 	int p1 = A.rows(), n = A.cols(), p2=b.sum(), j, count = 0;
 	if(p2>p1) stop("The length of index b must be not great than the number of columns of A!");
-	MatrixXd C = MatrixXd::Constant(p2, n, 0);
+	Eigen::MatrixXd C = Eigen::MatrixXd::Constant(p2, n, 0);
 	for(j=0; j< p1; j++)  if(b[j])   C.row(count++) = A.row(j);
 	return C;
 }
 //----------------------------------------------------------------**
 //***----------------------extract submatrix----------------------**
-MatrixXd extractColsZ(MatrixXd Z, int p, int K, VectorXi b)
+Eigen::MatrixXd extractColsZ(Eigen::MatrixXd Z, int p, int K, Eigen::VectorXi b)
 {
 	int n = Z.rows(), p2=b.sum(), i, j, count;
 	if(p2>p) stop("The length of index b must be not great than the number of columns of A!");
-	MatrixXd C = MatrixXd::Constant(n, p2*K, 0);
+	Eigen::MatrixXd C = Eigen::MatrixXd::Constant(n, p2*K, 0);
 	for(i=0;i<K;i++){
 	  count = 0;
 	  for(j=0; j< p; j++) if(b[j]) C.col(i*p2 + (count++)) = Z.col(i*p+j);
@@ -234,39 +234,39 @@ MatrixXd extractColsZ(MatrixXd Z, int p, int K, VectorXi b)
 }
 //----------------------------------------------------------------**
 //***----------------------extract submatrix----------------------**
-MatrixXd extractCols_by(MatrixXd Z, int n, int min, int K, int by)
+Eigen::MatrixXd extractCols_by(Eigen::MatrixXd Z, int n, int min, int K, int by)
 {
-	MatrixXd C = MatrixXd::Constant(n, K, 0);
+	Eigen::MatrixXd C = Eigen::MatrixXd::Constant(n, K, 0);
 	for(int i=0;i<K;i++) C.col(i) = Z.col(min+by*i);
 	return C;
 }
 //----------------------------------------------------------------**
 //***--------QRcondition_number for design matrix-----------------**
-double condition_numberQR(MatrixXd R)
+double condition_numberQR(Eigen::MatrixXd R)
 {
 	return uppertriangleNorm1AA(R) * uppertriangleNorm1AA(UpTriangularInv(R));
 }
 //----------------------------------------------------------------**
 //***------QRcondition_number for symetric matrix-----------------**
-double condition_numberQRSym(MatrixXd R)
+double condition_numberQRSym(Eigen::MatrixXd R)
 {
   return uppertriangleNorm1(R) * uppertriangleNorm1(UpTriangularInv(R));
 }
 //----------------------------------------------------------------**
 //***----------------solve linear system by QR--------------------**
-VectorXd solveEquationQR(MatrixXd A, VectorXd b)
+Eigen::VectorXd solveEquationQR(Eigen::MatrixXd A, Eigen::VectorXd b)
 {
   //solve linear system Ax = b, A = A.transpose();
   int p = b.size();
-  HouseholderQR<MatrixXd> qr;
+  HouseholderQR<Eigen::MatrixXd> qr;
   qr.compute(A);
-  MatrixXd R, Q;
+  Eigen::MatrixXd R, Q;
   Q = qr.householderQ();
   R = qr.matrixQR().triangularView<Upper>();
-  VectorXd X;
+  Eigen::VectorXd X;
   
   if (condition_numberQRSym(R) > 1e10){
-    MatrixXd temp, IDEN = MatrixXd::Identity(p, p);
+    Eigen::MatrixXd temp, IDEN = Eigen::MatrixXd::Identity(p, p);
     temp = A + (IDEN.array()*1e-4).matrix();
     X = temp.colPivHouseholderQr().solve(b);
   }
@@ -276,11 +276,11 @@ VectorXd solveEquationQR(MatrixXd A, VectorXd b)
 //----------------------------------------------------------------**
 //***--------------------transfer modal of unfoldings-------------**
 //// [[Rcpp::export]]
-MatrixXd TransferModalUnfoldings(MatrixXd S, int d1, int d2, int r1, int r2, int r3)
+Eigen::MatrixXd TransferModalUnfoldings(Eigen::MatrixXd S, int d1, int d2, int r1, int r2, int r3)
 {
   //From S_(d1) to S_(d2)
   int j;
-  MatrixXd S1,S_3;
+  Eigen::MatrixXd S1,S_3;
   if (d1 == 3) {
     if (d2 == 1){
       S1 = S.row(0).transpose();
@@ -343,11 +343,11 @@ MatrixXd TransferModalUnfoldings(MatrixXd S, int d1, int d2, int r1, int r2, int
 //----------------------------------------------------------------**
 //***--------------------transfer modal of unfoldings-------------**
 //// [[Rcpp::export]]
-MatrixXd TransferModalUnfoldingsT4(MatrixXd S, int d1, int d2, int r1, int r2, int r3, int r4)
+Eigen::MatrixXd TransferModalUnfoldingsT4(Eigen::MatrixXd S, int d1, int d2, int r1, int r2, int r3, int r4)
 {
     //From S_(d1) to S_(d2)
     int l, k;
-    MatrixXd S1, S2, S_3;
+    Eigen::MatrixXd S1, S2, S_3;
     if (d1 == 1) {
         if (d2 == 2) {
             S1 = S.block(0, 0, r1, r2).transpose();
@@ -532,28 +532,28 @@ MatrixXd TransferModalUnfoldingsT4(MatrixXd S, int d1, int d2, int r1, int r2, i
 }
 //----------------------------------------------------------------**
 //***--------------------transfer modal 1 to 2 -------------------**
-MatrixXd TransferModalUnfoldingsT12(MatrixXd S, VectorXi dim)
+Eigen::MatrixXd TransferModalUnfoldingsT12(Eigen::MatrixXd S, Eigen::VectorXi dim)
 {
     int k,d=1, order = dim.size(), r1=dim[0], r2=dim[1];
 	for(k=2; k<order; k++) d*=dim[k];
-	MatrixXd S1 = S.block(0, 0, r1, r2).transpose();
+	Eigen::MatrixXd S1 = S.block(0, 0, r1, r2).transpose();
 	for(k=1; k<d; k++) S1 = cbind_rcpp(S1, S.block(0, k*r2, r1, r2).transpose());
 	return S1;	
 }
 //----------------------------------------------------------------**
 //***--------------------transfer modal 2 to 1 -------------------**
-MatrixXd TransferModalUnfoldingsT21(MatrixXd S, VectorXi dim)
+Eigen::MatrixXd TransferModalUnfoldingsT21(Eigen::MatrixXd S, Eigen::VectorXi dim)
 {
     int k,d=1, order = dim.size(), r1=dim[0], r2=dim[1];
 	for(k=2; k<order; k++) d*=dim[k];
-	MatrixXd S1 = S.block(0, 0, r2, r1).transpose();
+	Eigen::MatrixXd S1 = S.block(0, 0, r2, r1).transpose();
 	for(k=1; k<d; k++) S1 = cbind_rcpp(S1, S.block(0, k*r1, r2, r1).transpose());
 	return S1;	
 }
 //----------------------------------------------------------------**
 //***--------------------transfer modal 1 to d -------------------**
 //// [[Rcpp::export]]
-MatrixXd TransferModalUnfoldingsT1d(MatrixXd S, int d, VectorXi dim)
+Eigen::MatrixXd TransferModalUnfoldingsT1d(Eigen::MatrixXd S, int d, Eigen::VectorXi dim)
 {
 	if(d==1) return S;
 	if(d==2) return TransferModalUnfoldingsT12(S, dim);
@@ -562,7 +562,7 @@ MatrixXd TransferModalUnfoldingsT1d(MatrixXd S, int d, VectorXi dim)
 		int i,ii,j,jd,k,d1=1, d2=1, order = dim.size(),r1=dim[0], rd=dim[d];
 		for(k=1; k<d; k++) d1*=dim[k];
 		for(k=d+1; k<order; k++) d2*=dim[k];		
-		MatrixXd S1 ,C = MatrixXd::Constant(r1, rd, 0), C1;
+		Eigen::MatrixXd S1 ,C = Eigen::MatrixXd::Constant(r1, rd, 0), C1;
 		
 		for(ii=0;ii<rd;ii++) C.col(ii) = S.col(d1*ii);
 		C1 = C.transpose();
@@ -588,7 +588,7 @@ MatrixXd TransferModalUnfoldingsT1d(MatrixXd S, int d, VectorXi dim)
 //----------------------------------------------------------------**
 //***--------------------transfer modal d to 1 -------------------**
 //// [[Rcpp::export]]
-MatrixXd TransferModalUnfoldingsTd1(MatrixXd S, int d, VectorXi dim)
+Eigen::MatrixXd TransferModalUnfoldingsTd1(Eigen::MatrixXd S, int d, Eigen::VectorXi dim)
 {
 	if(d==1) return S;
 	if(d==2) return TransferModalUnfoldingsT21(S, dim);
@@ -597,7 +597,7 @@ MatrixXd TransferModalUnfoldingsTd1(MatrixXd S, int d, VectorXi dim)
 		int i,ii,j,jd,k,d1=1, d2=1, order = dim.size(),r1=dim[0], rd=dim[d];
 		for(k=1; k<d; k++) d1*=dim[k];
 		for(k=d+1; k<order; k++) d2*=dim[k];		
-		MatrixXd S1, C = MatrixXd::Constant(r1, d1*rd, 0), C0;
+		Eigen::MatrixXd S1, C = Eigen::MatrixXd::Constant(r1, d1*rd, 0), C0;
 		for(i=0; i<d1; i++){
 			C0 = S.block(0, i*r1, rd, r1).transpose();
 			for(ii=0;ii<rd;ii++) C.col(d1*ii+i) = C0.col(ii);				
@@ -617,7 +617,7 @@ MatrixXd TransferModalUnfoldingsTd1(MatrixXd S, int d, VectorXi dim)
 //----------------------------------------------------------------**
 //***--------------------transfer modal d1 to d2 -----------------**
 // [[Rcpp::export]]
-MatrixXd TransferModalUnfoldingsT(MatrixXd S, int d1, int d2, VectorXi dim)
+Eigen::MatrixXd TransferModalUnfoldingsT(Eigen::MatrixXd S, int d1, int d2, Eigen::VectorXi dim)
 {
 	if(dim.size()<3) stop("S must be greater than 3!");
 	if(d1==1)
@@ -625,31 +625,31 @@ MatrixXd TransferModalUnfoldingsT(MatrixXd S, int d1, int d2, VectorXi dim)
 	else{
 		if(d2==1) return TransferModalUnfoldingsTd1(S, d1, dim);
 		else{
-			MatrixXd S1 = TransferModalUnfoldingsTd1(S, d1, dim);
+			Eigen::MatrixXd S1 = TransferModalUnfoldingsTd1(S, d1, dim);
 			return TransferModalUnfoldingsT1d(S1, d2, dim);
 		}
 	}
 }
 //----------------------------------------------------------------**
 //***----------------------reassign columns of a matrix-----------**
-MatrixXd submatrix_col(MatrixXd A, VectorXi b)
+Eigen::MatrixXd submatrix_col(Eigen::MatrixXd A, Eigen::VectorXi b)
 {
 	int n = A.rows();
 	int p = b.size();
 	int j;
-	MatrixXd C = MatrixXd::Constant(n, p, 0);
+	Eigen::MatrixXd C = Eigen::MatrixXd::Constant(n, p, 0);
 	for (j = 0; j < p; j++)
 		C.col(j) = A.col(b[j]-1);
 	return C;
 }
 //----------------------------------------------------------------**
 //***----------------------reassign rows of a matrix--------------**
-MatrixXd submatrix_row(MatrixXd A, VectorXi b)
+Eigen::MatrixXd submatrix_row(Eigen::MatrixXd A, Eigen::VectorXi b)
 {
 	int p = A.cols();
 	int n = b.size();
 	int i;
-	MatrixXd C = MatrixXd::Constant(n, p, 0);
+	Eigen::MatrixXd C = Eigen::MatrixXd::Constant(n, p, 0);
 	for (i = 0; i < n; i++)
 		C.row(i) = A.row(b[i] - 1);
 	return C;
@@ -696,16 +696,16 @@ double penalties(double z, double v, double lambda, double alpha, double gamma, 
 }
 //----------------------------------------------------------------**
 //***----update the jth row of matrix A with penalty--------------**
-VectorXd updateAj(VectorXd z, int n, int r1, double lambda, double alpha, double gamma, int penalty)
+Eigen::VectorXd updateAj(Eigen::VectorXd z, int n, int r1, double lambda, double alpha, double gamma, int penalty)
 {
 	double znorm = 0;
 	int j;
-	VectorXd b = VectorXd::Constant(r1, 0);
+	Eigen::VectorXd b = Eigen::VectorXd::Constant(r1, 0);
 	znorm = z.norm();
     if(znorm==0){
         b = z;
         return b;
-    }else if(isinf(znorm)){
+    } else if(std::isinf(znorm)) {
         znorm = fabs(gamma*(lambda*alpha)*(1+lambda*(1-alpha)))+1;   // penalty=3
         znorm = penalties(znorm, 1, lambda, alpha, gamma, penalty) / znorm;
         for (j = 0; j<r1; j++) b[j] = znorm * z[j];

@@ -1,8 +1,60 @@
 
 ##--------------Estimation with Penalty by CV----------------------##
-marmComposed.dr <- 
-  function(Y,X1,X2,G1=NULL,group=NULL,is.fabs=1,K_index=NULL,r_index=NULL,method="BIC",ncv=10,penalty="LASSO",lambda=NULL,
-           D0_t3=NULL,D0_t4=NULL,intercept=TRUE,nlam=50,degr=3,lam_min=0.01,eps=1e-4,max_step=20,eps1=1e-4,max_step1_t3=20,max_step1_t4=20,gamma=2,dfmax1=NULL,dfmax2=NULL,alpha=1,vnorm_ratio=1){
+#' Fit composed model (CoMARM) with sparsity assumption and unknown ranks.
+#'
+#' Fit a composed model using B-splines with unknown ranks (\eqn{r_{1g}, r_{2g}, r_{3g}} and \eqn{r_{1}, r_{2}, r_{3}, r_{4}}). 
+#' This function estimates multiple third-order and fourth-order coefficient tensors. It utilizes group sparse 
+#' penalties such as LASSO, MCP, or SCAD, and a coordinate descent algorithm to yield a sparsity estimator. 
+#' The BIC or cross-validation method is applied to optimize regularization parameters, ranks, and the 
+#' number of B-spline basis functions simultaneously.
+#'
+#' @param Y A \eqn{n\times q} numeric matrix of responses.
+#' @param X1 A \eqn{n\times p1} numeric design matrix for the model, corresponding to first set of views.
+#' @param X2 A \eqn{n\times p2} numeric design matrix for the model, corresponding to second set of views.
+#' @param G1 The number of views in the first set that we consider without intergroup correlation.
+#' @param group A vector of the grouping index for predictors, usually set to \code{rep(1, p)} by default.
+#' @param is.fabs A logical value indicating whether data comes from scenario I.
+#' @param K_index User-specified sequence of K, usually \code{6} for cubic splines.
+#' @param r_index A sequence of rank values for the tensors.
+#' @param method Method for parameter selection, either \code{BIC} or \code{CV}.
+#' @param ncv Number of cross-validation folds.
+#' @param penalty Type of penalty applied, options: \code{LASSO}, \code{MCP}, \code{SCAD}.
+#' @param lambda Sequence of lambda values for regularization.
+#' @param D0_t3 Initial values for third-order tensor decomposition.
+#' @param D0_t4 Initial values for fourth-order tensor decomposition.
+#' @param intercept Whether to fit an intercept.
+#' @param nlam Number of lambda values to use.
+#' @param degr Number of knots in B-spline.
+#' @param lam_min Minimum lambda as a fraction of the maximum.
+#' @param eps Convergence threshold.
+#' @param max_step Maximum number of iterations allowed.
+#' @param eps1 Convergence threshold for coordinate descent.
+#' @param max_step1_t3 Maximum iterations for coordinate descent on third-order tensor.
+#' @param max_step1_t4 Maximum iterations for coordinate descent on fourth-order tensor.
+#' @param gamma Tuning parameter for MCP/SCAD.
+#' @param dfmax1 Maximum number of non-zero coefficients for third-order tensor.
+#' @param dfmax2 Maximum number of non-zero coefficients for fourth-order tensor.
+#' @param alpha Balancing parameter between LASSO/MCP/SCAD and ridge.
+#' @param vnorm_ratio Ratio between lambda values for different tensor types.
+#'
+#' @return List of model outputs including estimates of tensors, coefficients, and model diagnostics.
+#' @examples
+#' library(comarm)
+#' n <- 200; q <- 5; p <- 20; s1 <- 5; s2 <- 3; G1 <- 1; ng = 4
+#' group <- rep(1:ng, each = p/ng)
+#' mydata <- comarm.sim.fbs(n, q, p, s1, s2, G1, group)
+#' fit <- with(mydata, comarm.dr(Y = Y, X1 = X1, X2 = X2, G1 = G1,
+#'             group = group, is.fabs = is.fabs, K_index = K,
+#'             r_index = r_index, D0_t3 = D0_t3, D0_t4 = D0_t4, nlam = 5))
+#'
+#' @seealso \code{\link{comarm}}
+#' @useDynLib comarm, .registration = TRUE
+#' @export
+comarm.dr <- function(Y, X1, X2, G1 = NULL, group = NULL, is.fabs = 1, K_index = NULL, r_index = NULL, 
+                            method = "BIC", ncv = 10, penalty = "LASSO", lambda = NULL, D0_t3 = NULL, 
+                            D0_t4 = NULL, intercept = TRUE, nlam = 50, degr = 3, lam_min = 0.01, 
+                            eps = 1e-4, max_step = 20, eps1 = 1e-4, max_step1_t3 = 20, max_step1_t4 = 20, 
+                            gamma = 2, dfmax1 = NULL, dfmax2 = NULL, alpha = 1, vnorm_ratio = 1) {
     n <- nrow(Y)
     q <- ncol(Y)
     nx1 <- ncol(X1)
@@ -80,8 +132,7 @@ marmComposed.dr <-
       D = rbind(diag(r4_t4_max), matrix(0,q-r4_t4_max,r4_t4_max))
       S = matrix(rnorm(r1_t4_max*r2_t4_max*r3_t4_max*r4_t4_max),r4_t4_max,r1_t4_max*r2_t4_max*r3_t4_max)
       D0_t4 = list(S=S,A=A,B=B,C=C,D=D)
-    }
-    else{
+    } else{
       A = D0_t4$A #note!
       B = D0_t4$B
       C = D0_t4$C
@@ -123,6 +174,7 @@ marmComposed.dr <-
       is_setlam = 0
       nlam = length(lambda)
       setlam = c(1,lam_min,alpha,nlam)
+      vnorm_ratio0 = NULL
     }
     
     opts_pen = list(gamma=gamma,dfmax=-1,dfmax1=dfmax1,dfmax2=dfmax2,pen=pen,nlam=nlam,lam_max=1,lam_min=lam_min,alpha=alpha,isPenColumn=1,vnorm_ratio=vnorm_ratio,vnorm_ratio0=vnorm_ratio0) 
@@ -130,7 +182,7 @@ marmComposed.dr <-
     if((max(r1_t4_index)>dim(A)[2])|(max(r2_t4_index)>dim(B)[2])|(max(r3_t4_index)>dim(C)[2])|(max(r4_t4_index)>dim(D)[2]))
       stop("maximum number of index sequence of r1, r2, r3 and r4 must not be larger than A, B, C and D, respectively !")
     #---------------- The selection by CV  ---------------------#  
-    if(method=="BIC") fit_dr = marmComposed.bic(Y,X1,X2,G1,group,K_index,r_index,lambda,D0_t3,D0_t4,intercept,opts,opts_pen)
+    if(method=="BIC") fit_dr = comarm.bic(Y,X1,X2,G1,group,K_index,r_index,lambda,D0_t3,D0_t4,intercept,opts,opts_pen)
     #if(method=="CV") fit_dr = gmam_sparse_composed_cv(Y,X,group,ncv,K_index,r1_index,r2_index,r3_index,lambda,D0,intercept,opts,opts_pen)
     
     return(fit_dr)

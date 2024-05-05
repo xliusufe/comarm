@@ -4,16 +4,16 @@
 
 //***------------------------------------------------------------------------------------**
 //***--------------------------------updateS in T3---------------------------------------**
-MatrixXd updateS(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C)
+Eigen::MatrixXd updateS(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C)
 {
     int r1 = A.cols();
     int r2 = B.cols();
     int r3 = C.cols();
 	int d = r1 * r2*r3, k,k1,j,j1;
-	MatrixXd ztilde = Z * kroneckerProduct(B, A), vectorS;
-	VectorXd U;
+	Eigen::MatrixXd ztilde = Z * kroneckerProduct(B, A), vectorS;
+	Eigen::VectorXd U;
 	U.setZero(d);
-	MatrixXd  V = MatrixXd::Constant(d, d, 0);
+	Eigen::MatrixXd  V = Eigen::MatrixXd::Constant(d, d, 0);
 
 	for (k = 0; k < r1*r2; k++) {
 		for (j = 0; j < r3; j++) {
@@ -34,21 +34,21 @@ MatrixXd updateS(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C)
 
 //***------------------------------------------------------------------------------------**
 //***---------------------------------updateC in T3--------------------------------------**
-MatrixXd updateC(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd S)
+Eigen::MatrixXd updateC(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd S)
 {
 	int q = Y.cols(),j,kp, r3 = C.cols();
-	MatrixXd ztilde = Z * kroneckerProduct(B, A);
-	MatrixXd StZ = ztilde * S.transpose();
-	MatrixXd Cnew = MatrixXd::Constant(q, r3, 0);
-	HouseholderQR<MatrixXd> qr;
+	Eigen::MatrixXd ztilde = Z * kroneckerProduct(B, A);
+	Eigen::MatrixXd StZ = ztilde * S.transpose();
+	Eigen::MatrixXd Cnew = Eigen::MatrixXd::Constant(q, r3, 0);
+	HouseholderQR<Eigen::MatrixXd> qr;
 	qr.compute(StZ);
-	MatrixXd R = qr.matrixQR().triangularView<Upper>();
-	MatrixXd Q = qr.householderQ();
+	Eigen::MatrixXd R = qr.matrixQR().triangularView<Upper>();
+	Eigen::MatrixXd Q = qr.householderQ();
 
 	
 	kp = StZ.cols();
-	MatrixXd temp, IDEN = MatrixXd::Identity(kp, kp);
-	if (pow(condition_numberQRSym(R),2) > 1e10 || isnan(UpTriangularInv(R).sum())){
+	Eigen::MatrixXd temp, IDEN = Eigen::MatrixXd::Identity(kp, kp);
+	if (pow(condition_numberQRSym(R),2) > 1e10 || std::isnan(UpTriangularInv(R).sum())){
         temp = tRbyR(R).block(0, 0, kp, kp) + (IDEN.array()*1e-4).matrix();
 	  for (j = 0; j < q; j++) Cnew.row(j) = (temp.colPivHouseholderQr().solve(StZ.transpose()*Y.col(j))).transpose();
 	}
@@ -60,14 +60,14 @@ MatrixXd updateC(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C, Mat
 
 //***------------------------------------------------------------------------------------**
 //***----------------------------------updateA in T3-------------------------------------**
-MatrixXd updateA(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd S)
+Eigen::MatrixXd updateA(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd S)
 {
 	int r1 = A.cols(), r2 = B.cols(), K = B.rows(), p = A.rows(); //note!
 	int d = r1 * p,t1,t2,t3,t4,j;
-	MatrixXd W = C * S, Wt1, Zt2, Wt3, Zt4, zbw1, zbw2, vectorA;
-	VectorXd tU;
+	Eigen::MatrixXd W = C * S, Wt1, Zt2, Wt3, Zt4, zbw1, zbw2, vectorA;
+	Eigen::VectorXd tU;
 	tU.setZero(d);
-	MatrixXd tV = MatrixXd::Constant(d, d, 0);
+	Eigen::MatrixXd tV = Eigen::MatrixXd::Constant(d, d, 0);
 
 	for (t2 = 0; t2<p; t2++) {
 		Zt2 = Z.col(t2);
@@ -97,14 +97,14 @@ MatrixXd updateA(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C, Mat
 
 //***------------------------------------------------------------------------------------**
 //***--------------------------------updateB in T3---------------------------------------**
-MatrixXd updateB(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd S)
+Eigen::MatrixXd updateB(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd S)
 {
 	int r1 = A.cols(), r2 = B.cols(), K = B.rows(), q = Y.cols(), n = Y.rows(), p = A.rows();
 	int d = r2 * K, t1, t2, t3, t4;
-	MatrixXd W = C * S, Wt1, Zt2, Wt3, Zt4, zaw1, zaw2, vectorB;
-	VectorXd tU;
+	Eigen::MatrixXd W = C * S, Wt1, Zt2, Wt3, Zt4, zaw1, zaw2, vectorB;
+	Eigen::VectorXd tU;
 	tU.setZero(d);
-	MatrixXd tV = MatrixXd::Constant(d, d, 0);
+	Eigen::MatrixXd tV = Eigen::MatrixXd::Constant(d, d, 0);
 	for (t2 = 0; t2<K; t2++) {
 		Zt2 = Z.block(0, t2*p, n, p); 
 		for (t1 = 0; t1<r2; t1++) {
@@ -128,10 +128,10 @@ MatrixXd updateB(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C, Mat
 
 //***------------------------------------------------------------------------------------**
 //***------------------------------Estimation without penalty----------------------------**
-List Estimation_Dj(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, VectorXi &convergence1, int k, double &likhd1)
+List Estimation_Dj(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, VectorXi &convergence1, int k, double &likhd1)
 {	
     double likhd0 = likhd1;
-	MatrixXd Dnew, Anew, Bnew, Cnew, Snew;
+	Eigen::MatrixXd Dnew, Anew, Bnew, Cnew, Snew;
 	Snew = updateS(Y, Z, A, B, C);
 	Dnew = C * Snew*kroneckerProduct(B.transpose(), A.transpose());
 	likhd1 = (Y - Z * Dnew.transpose()).squaredNorm();
@@ -169,7 +169,7 @@ List Estimation_Dj(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, M
 }
 
 // [[Rcpp::export]]
-List Estimation(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, List optsList)
+List Estimation(Eigen::MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, List optsList)
 {
     opts.eps = as<double>(optsList["eps"]);
     opts.max_step = as<int>(optsList["max_step"]);
@@ -187,15 +187,15 @@ List Estimation(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Ci
     
     int i, j, ng = opts.G;
     double  likhd0 = 2*pow(10, 6), likhd1 = likhd0;
-    MatrixXd S, A, B, C, Dnew, D0, Ynew = Y, Zj;
+    Eigen::MatrixXd S, A, B, C, Dnew, D0, Ynew = Y, Zj;
     VectorXi convergence1 = VectorXi::Constant(4*ng, 1);
     List fit, S0(ng), A0(ng), B0(ng), C0(ng), Z(ng);
     for(i=0; i<ng; i++){
-        S0[i] = as<MatrixXd>(Sinit[i]);
-        A0[i] = as<MatrixXd>(Ainit[i]);
-        B0[i] = as<MatrixXd>(Binit[i]);
-        C0[i] = as<MatrixXd>(Cinit[i]);
-        Z[i] = as<MatrixXd>(Z0[i]);
+        S0[i] = as<Eigen::MatrixXd>(Sinit[i]);
+        A0[i] = as<Eigen::MatrixXd>(Ainit[i]);
+        B0[i] = as<Eigen::MatrixXd>(Binit[i]);
+        C0[i] = as<Eigen::MatrixXd>(Cinit[i]);
+        Z[i] = as<Eigen::MatrixXd>(Z0[i]);
     }
     int step = 0;
     for (i=0; i<ng; i++) {
@@ -229,21 +229,21 @@ List Estimation(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Ci
 //***------------------------------------------------------------------------------------**
 //***------------------------------setup tuning parameters-------------------------------**
 // [[Rcpp::export]]
-VectorXd setuplambda(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, int nx, int ng, int nlam, VectorXd setlam)
+Eigen::VectorXd setuplambda(Eigen::MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, int nx, int ng, int nlam, Eigen::VectorXd setlam)
 {
 	int n = Y.rows(), q = Y.cols(), p, r1, r2, r3, K, j, jj, g,count=0;
 	double lam_max, lam_min, alpha;
-	VectorXd lambda, lambda1, tmp1, tmp = VectorXd::Constant(nx, 0);
-	MatrixXd S,A,B,C,Z,S1, cbs, V, V_1, Y1 = Y, Gammaj, Gamma_sqrt, svdu, svdd, U;
+	Eigen::VectorXd lambda, lambda1, tmp1, tmp = Eigen::VectorXd::Constant(nx, 0);
+	Eigen::MatrixXd S,A,B,C,Z,S1, cbs, V, V_1, Y1 = Y, Gammaj, Gamma_sqrt, svdu, svdd, U;
 	VectorXi id;
     VectorXi dims = VectorXi::Constant(3, 0);
 	Y1.resize(n*q, 1);
 	for(g=0;g<ng;g++){
-		S = as<MatrixXd>(Sinit[g]);
-		A = as<MatrixXd>(Ainit[g]);
-		B = as<MatrixXd>(Binit[g]);
-		C = as<MatrixXd>(Cinit[g]);
-		Z = as<MatrixXd>(Z0[g]);
+		S = as<Eigen::MatrixXd>(Sinit[g]);
+		A = as<Eigen::MatrixXd>(Ainit[g]);
+		B = as<Eigen::MatrixXd>(Binit[g]);
+		C = as<Eigen::MatrixXd>(Cinit[g]);
+		Z = as<Eigen::MatrixXd>(Z0[g]);
 		p = A.rows();
 		r1 = A.cols(); 
 		r2 = B.cols(); 
@@ -261,7 +261,7 @@ VectorXd setuplambda(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, Li
 				V = rbind_rcpp(V, V_1);
 			}
 			Gammaj = ((V.transpose()*V).array() / n).matrix();		
-			JacobiSVD<MatrixXd> svd(Gammaj, ComputeThinU | ComputeThinV);
+			JacobiSVD<Eigen::MatrixXd> svd(Gammaj, ComputeThinU | ComputeThinV);
 			svdu = svd.matrixU();
 			svdd = (svd.singularValues()).asDiagonal();
 			Gamma_sqrt = svdu * ((1 / (svdd.diagonal().array().sqrt())).matrix().asDiagonal())*(svdu.transpose());	
@@ -291,7 +291,7 @@ VectorXd setuplambda(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, Li
 
 //***------------------------------------------------------------------------------------**
 //***---------------------update the jth row of matrix A with penalty--------------------**
-MatrixXd updateA_penalty(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd S, VectorXi &activeA, double lambda1)
+Eigen::MatrixXd updateA_penalty(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd S, VectorXi &activeA, double lambda1)
 {
     /*
 	Input:
@@ -327,18 +327,18 @@ MatrixXd updateA_penalty(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixX
     }
     
 
-    MatrixXd S1;
-    VectorXd aj,ajnew,zj;
+    Eigen::MatrixXd S1;
+    Eigen::VectorXd aj,ajnew,zj;
     VectorXi dims = VectorXi::Constant(3, 0);
     dims[0] = r1; dims[1] = r2; dims[2] = r3;
     S1 = TransferModalUnfoldingsT(S, 3, 1, dims);
     VectorXi id = SEQ(1, p*K, p);
-    MatrixXd Vnew = MatrixXd::Constant(n*q, r1*p, 0);
-    MatrixXd Gamma_sqrtn = MatrixXd::Constant(r1, r1*p, 0);
-    MatrixXd cbs = kroneckerProduct(C, B)*(S1.transpose());
-    MatrixXd A1 = A, V, Gammaj, Gamma_sqrt, V_1, D3,L;
+    Eigen::MatrixXd Vnew = Eigen::MatrixXd::Constant(n*q, r1*p, 0);
+    Eigen::MatrixXd Gamma_sqrtn = Eigen::MatrixXd::Constant(r1, r1*p, 0);
+    Eigen::MatrixXd cbs = kroneckerProduct(C, B)*(S1.transpose());
+    Eigen::MatrixXd A1 = A, V, Gammaj, Gamma_sqrt, V_1, D3,L;
     D3 = C * S*kroneckerProduct(B.transpose(), A.transpose());
-    MatrixXd IDEN = MatrixXd::Identity(r1, r1);
+    Eigen::MatrixXd IDEN = Eigen::MatrixXd::Identity(r1, r1);
     int count=0;
     
 	for (j = 0; j < p; j++) {
@@ -349,7 +349,7 @@ MatrixXd updateA_penalty(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixX
 		}
 		Gammaj = ((V.transpose()*V).array() / n).matrix();
 		L = Gammaj.llt().matrixL();
-        if (isnan(UpTriangularInv(L.transpose()).sum())) {
+        if (std::isnan(UpTriangularInv(L.transpose()).sum())) {
             count++;
             Gammaj = ((V.transpose()*V).array() / n).matrix() + (IDEN.array()*1e-4).matrix();
             L = Gammaj.llt().matrixL();
@@ -359,11 +359,11 @@ MatrixXd updateA_penalty(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixX
 		A1.row(j) = (QbyR(A.row(j).transpose(), L.transpose(), 0)).transpose();
 	}
 
-	MatrixXd Anew = A1;
-	MatrixXd r = Y - Z * (D3.transpose());
+	Eigen::MatrixXd Anew = A1;
+	Eigen::MatrixXd r = Y - Z * (D3.transpose());
 	r.resize(n*q, 1);
-	VectorXd ajnorm_old, ajnorm;
-	ajnorm_old = ajnorm = VectorXd::Constant(p, 0);
+	Eigen::VectorXd ajnorm_old, ajnorm;
+	ajnorm_old = ajnorm = Eigen::VectorXd::Constant(p, 0);
 	double converged1;
 	int step = 0;
 	while (step<max_step1) 
@@ -383,7 +383,7 @@ MatrixXd updateA_penalty(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixX
             }else{
                 ajnew = updateAj(zj, n, r1, lambda1, alpha, gamma, pen);
             }
-            if (isnan(ajnew.norm())) {
+            if (std::isnan(ajnew.norm())) {
                 stop("error: ajnew is nan!");
             }
             r = r - Vnew.block(0, j*r1, n*q, r1)*(ajnew-aj);
@@ -417,13 +417,13 @@ MatrixXd updateA_penalty(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixX
 
 //----------------------------------------------------------------**
 //***--------------------Estimation without penalty---------------**
-List Estimation_pen_Dj(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C,
-                       VectorXi &convergence1, int k, double &likhd1, double lambda1, MatrixXd Zm, MatrixXd Am, VectorXi &breakid)
+List Estimation_pen_Dj(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C,
+                       VectorXi &convergence1, int k, double &likhd1, double lambda1, Eigen::MatrixXd Zm, Eigen::MatrixXd Am, VectorXi &breakid)
 {
     int j, p = A.rows(), r1 = A.cols(), K = B.rows();
     VectorXi activeA = VectorXi::Constant(p, 0);
     double likhd0 = likhd1;
-    MatrixXd Dnew, Anew, Bnew, Cnew, Snew, Z1, A1, Z2, A2;
+    Eigen::MatrixXd Dnew, Anew, Bnew, Cnew, Snew, Z1, A1, Z2, A2;
     Anew = A;
     A1 = Am;
     Z1 = Zm;
@@ -485,7 +485,7 @@ List Estimation_pen_Dj(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd 
 //***------------------------------------------------------------------------------------**
 //***--------------Estimation with penalizing functions in a whole column ---------------**
 // [[Rcpp::export]]
-List EstPenColumn(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, VectorXd lambda, List optsList, List optsList_pen)
+List EstPenColumn(Eigen::MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, Eigen::VectorXd lambda, List optsList, List optsList_pen)
 {
     /*
      Input:
@@ -537,21 +537,21 @@ List EstPenColumn(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List 
     int l,i,j,pg, step, max_step=opts.max_step, nlam=opts_pen.nlam, ng = opts.G, nx = opts.nx;
     double  likhd0 = 2*pow(10, 6), lambda1, likhd1=likhd0, eps = opts.eps;
     
-    MatrixXd S, A, B, C, Dnew, D0, Ynew = Y, Zj, Zj1, A1;
+    Eigen::MatrixXd S, A, B, C, Dnew, D0, Ynew = Y, Zj, Zj1, A1;
     VectorXi activeAj, activeA = VectorXi::Constant(nx, 0), convergence1 = VectorXi::Constant(4*ng, 1), breakid = VectorXi::Constant(ng, 0);
     MatrixXi betapath = MatrixXi::Constant(nx, nlam, 0), df = MatrixXi::Constant(ng, nlam, 0);
-    VectorXd likhd = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd = Eigen::VectorXd::Constant(nlam, 0);
     
     List fit, S0(ng), A0(ng), B0(ng), C0(ng), Z(ng), Zm(ng), Am(ng);
     List Shat(nlam), Ahat(nlam), Bhat(nlam), Chat(nlam);
     for(i=0; i<ng; i++){
-        S0[i] = as<MatrixXd>(Sinit[i]);
-        A0[i] = as<MatrixXd>(Ainit[i]);
-        B0[i] = as<MatrixXd>(Binit[i]);
-        C0[i] = as<MatrixXd>(Cinit[i]);
-        Z[i] = as<MatrixXd>(Z0[i]);
-        Zm[i] = as<MatrixXd>(Z0[i]);
-        Am[i] = as<MatrixXd>(Ainit[i]);
+        S0[i] = as<Eigen::MatrixXd>(Sinit[i]);
+        A0[i] = as<Eigen::MatrixXd>(Ainit[i]);
+        B0[i] = as<Eigen::MatrixXd>(Binit[i]);
+        C0[i] = as<Eigen::MatrixXd>(Cinit[i]);
+        Z[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Zm[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Am[i] = as<Eigen::MatrixXd>(Ainit[i]);
     }
     for (l = 0; l < nlam; l++) {
         lambda1 = lambda[l];
@@ -615,7 +615,7 @@ List EstPenColumn(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List 
 //***------------------------------------------------------------------------------------**
 //***----------- Estimation with penalizing functions in a whole column by CV------------**
 // [[Rcpp::export]]
-List EstPenColumnCV(MatrixXd Y, List Z0, MatrixXd Ytest, List Ztest0, List Sinit, List Ainit, List Binit, List Cinit, VectorXd lambda, List optsList, List optsList_pen)
+List EstPenColumnCV(Eigen::MatrixXd Y, List Z0, Eigen::MatrixXd Ytest, List Ztest0, List Sinit, List Ainit, List Binit, List Cinit, Eigen::VectorXd lambda, List optsList, List optsList_pen)
 {
     /*
     Input:
@@ -668,20 +668,20 @@ List EstPenColumnCV(MatrixXd Y, List Z0, MatrixXd Ytest, List Ztest0, List Sinit
     int l,i,j, pg, step, max_step=opts.max_step, nlam=opts_pen.nlam, ng = opts.G, K = opts.K, nx = opts.nx;
     double  likhd0 = 2*pow(10, 6), lambda1, likhd1=likhd0, eps = opts.eps;
 
-    MatrixXd S, A, B, C, Dnew, D0, Ynew = Y, Ztest, Zj, Z2, A2, Zj1, A1;
+    Eigen::MatrixXd S, A, B, C, Dnew, D0, Ynew = Y, Ztest, Zj, Z2, A2, Zj1, A1;
     VectorXi activeAj, activeA = VectorXi::Constant(nx, 0), convergence1 = VectorXi::Constant(4*ng, 1), breakid = VectorXi::Constant(ng, 0);
     MatrixXi betapath = MatrixXi::Constant(nx, nlam, 0), df = MatrixXi::Constant(ng, nlam, 0);
-    VectorXd likhd = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd = Eigen::VectorXd::Constant(nlam, 0);
 
     List fit, S0(ng), A0(ng), B0(ng), C0(ng), Z(ng), Zm(ng), Am(ng);
     for(i=0; i<ng; i++){
-        S0[i] = as<MatrixXd>(Sinit[i]);
-        A0[i] = as<MatrixXd>(Ainit[i]);
-        B0[i] = as<MatrixXd>(Binit[i]);
-        C0[i] = as<MatrixXd>(Cinit[i]);
-        Z[i] = as<MatrixXd>(Z0[i]);
-        Zm[i] = as<MatrixXd>(Z0[i]);
-        Am[i] = as<MatrixXd>(Ainit[i]);
+        S0[i] = as<Eigen::MatrixXd>(Sinit[i]);
+        A0[i] = as<Eigen::MatrixXd>(Ainit[i]);
+        B0[i] = as<Eigen::MatrixXd>(Binit[i]);
+        C0[i] = as<Eigen::MatrixXd>(Cinit[i]);
+        Z[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Zm[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Am[i] = as<Eigen::MatrixXd>(Ainit[i]);
     }
     
     for (l = 0; l < nlam; l++) {
@@ -744,14 +744,14 @@ List EstPenColumnCV(MatrixXd Y, List Z0, MatrixXd Ytest, List Ztest0, List Sinit
 
 //***------------------------------------------------------------------------------------**
 //***-----------------------------------updateS in T4------------------------------------**
-MatrixXd updateT4S(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D)
+Eigen::MatrixXd updateT4S(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D)
 {
     int r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), r4 = D.cols();
     int d = r1*r2*r3*r4, k,k1,j,j1;
-    MatrixXd ztilde = Z * kroneckerProduct(C,kroneckerProduct(B, A)), vectorS;
-    VectorXd U;
+    Eigen::MatrixXd ztilde = Z * kroneckerProduct(C,kroneckerProduct(B, A)), vectorS;
+    Eigen::VectorXd U;
     U.setZero(d);
-    MatrixXd  V = MatrixXd::Constant(d, d, 0);
+    Eigen::MatrixXd  V = Eigen::MatrixXd::Constant(d, d, 0);
     
     for (k = 0; k < r1*r2*r3; k++) {
         for (j = 0; j < r4; j++) {
@@ -771,20 +771,20 @@ MatrixXd updateT4S(MatrixXd Y, MatrixXd Z, MatrixXd A, MatrixXd B, MatrixXd C, M
 }
 //***------------------------------------------------------------------------------------**
 //***---------------------------------updateD in T4--------------------------------------**
-MatrixXd updateT4D(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D)
+Eigen::MatrixXd updateT4D(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D)
 {
     int q = Y.cols(),j,kp, r4 = D.cols();
-    MatrixXd ztilde = Z * kroneckerProduct(C,kroneckerProduct(B, A));
-    MatrixXd StZ = ztilde * S.transpose();
-    MatrixXd Cnew = MatrixXd::Constant(q, r4, 0);
-    HouseholderQR<MatrixXd> qr;
+    Eigen::MatrixXd ztilde = Z * kroneckerProduct(C,kroneckerProduct(B, A));
+    Eigen::MatrixXd StZ = ztilde * S.transpose();
+    Eigen::MatrixXd Cnew = Eigen::MatrixXd::Constant(q, r4, 0);
+    HouseholderQR<Eigen::MatrixXd> qr;
     qr.compute(StZ);
-    MatrixXd R = qr.matrixQR().triangularView<Upper>();
-    MatrixXd Q = qr.householderQ();
+    Eigen::MatrixXd R = qr.matrixQR().triangularView<Upper>();
+    Eigen::MatrixXd Q = qr.householderQ();
     
     kp = StZ.cols();
-    MatrixXd temp, IDEN = MatrixXd::Identity(kp, kp);
-    if (pow(condition_numberQRSym(R),2) > 1e10 || isnan(UpTriangularInv(R).sum())){
+    Eigen::MatrixXd temp, IDEN = Eigen::MatrixXd::Identity(kp, kp);
+    if (pow(condition_numberQRSym(R),2) > 1e10 || std::isnan(UpTriangularInv(R).sum())){
         temp = tRbyR(R).block(0, 0, kp, kp) + (IDEN.array()*1e-4).matrix();
         for (j = 0; j < q; j++) {
             Cnew.row(j) = (temp.colPivHouseholderQr().solve(StZ.transpose()*Y.col(j))).transpose();
@@ -798,14 +798,14 @@ MatrixXd updateT4D(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, M
 }
 //***------------------------------------------------------------------------------------**
 //***----------------------------------updateA in T4-------------------------------------**
-MatrixXd updateT4A(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D)
+Eigen::MatrixXd updateT4A(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D)
 {
     int r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), K = B.rows(), G = C.rows(), p = A.rows();
     int d = r1 * p, t1,t2,t3,t4,j;
-    MatrixXd W = D * S, Wt1, Zt2, Wt3, Zt4, zbw1, zbw2, vectorA, Gamma = kroneckerProduct(C,B);
-    VectorXd tU;
+    Eigen::MatrixXd W = D * S, Wt1, Zt2, Wt3, Zt4, zbw1, zbw2, vectorA, Gamma = kroneckerProduct(C,B);
+    Eigen::VectorXd tU;
     tU.setZero(d);
-    MatrixXd tV = MatrixXd::Constant(d, d, 0);
+    Eigen::MatrixXd tV = Eigen::MatrixXd::Constant(d, d, 0);
     
     for (t2 = 0; t2<p; t2++) {
         Zt2 = Z.col(t2);
@@ -833,14 +833,14 @@ MatrixXd updateT4A(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, M
 }
 //***------------------------------------------------------------------------------------**
 //***----------------------------------updateB in T4-------------------------------------**
-MatrixXd updateT4B(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D)
+Eigen::MatrixXd updateT4B(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D)
 {
     int r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), K = B.rows(), G = C.rows(), q = Y.cols(), n = Y.rows(), p = A.rows();
     int d = r2 * K, t1, t2, t3, t4, j;
-    MatrixXd W = D * S, Wt1, Zt2, Wt3, Zt4, zaw1, zaw2, vectorB, Gamma = kroneckerProduct(C,A);
-    VectorXd tU;
+    Eigen::MatrixXd W = D * S, Wt1, Zt2, Wt3, Zt4, zaw1, zaw2, vectorB, Gamma = kroneckerProduct(C,A);
+    Eigen::VectorXd tU;
     tU.setZero(d);
-    MatrixXd tV = MatrixXd::Constant(d, d, 0);
+    Eigen::MatrixXd tV = Eigen::MatrixXd::Constant(d, d, 0);
     for (t2 = 0; t2<K; t2++) {
         Zt2 = Z.block(0, t2*p, n, p);
         for (j = 1; j<G; j++)    Zt2 = cbind_rcpp(Zt2, Z.block(0, j*p*K + t2*p, n, p));
@@ -867,14 +867,14 @@ MatrixXd updateT4B(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, M
 }
 //***------------------------------------------------------------------------------------**
 //***-----------------------------------updateC in T4------------------------------------**
-MatrixXd updateT4C(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D)
+Eigen::MatrixXd updateT4C(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D)
 {
     int r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), K = B.rows(), G = C.rows(), q = Y.cols(), n = Y.rows(), p = A.rows();
     int d = r3 * G, t1, t2, t3, t4;
-    MatrixXd W = D * S, Wt1, Zt2, Wt3, Zt4, zaw1, zaw2, vectorC, Gamma = kroneckerProduct(B,A);
-    VectorXd tU;
+    Eigen::MatrixXd W = D * S, Wt1, Zt2, Wt3, Zt4, zaw1, zaw2, vectorC, Gamma = kroneckerProduct(B,A);
+    Eigen::VectorXd tU;
     tU.setZero(d);
-    MatrixXd tV = MatrixXd::Constant(d, d, 0);
+    Eigen::MatrixXd tV = Eigen::MatrixXd::Constant(d, d, 0);
     for (t2 = 0; t2<G; t2++) {
         Zt2 = Z.block(0, t2*p*K, n, p*K);
         for (t1 = 0; t1<r3; t1++) {
@@ -898,7 +898,7 @@ MatrixXd updateT4C(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, M
 //***------------------------------------------------------------------------------------**
 //***---------------------------T4 Estimation without penalty----------------------------**
 // [[Rcpp::export]]
-List EstimationT4(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D, List optsList)
+List EstimationT4(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D, List optsList)
 {
     /*
      Input:
@@ -943,7 +943,7 @@ List EstimationT4(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, Ma
     
     int j, max_step=opts.max_step;
     double  likhd0 = 2*pow(10, 6), likhd1, eps = opts.eps;
-    MatrixXd Snew, Anew, Bnew, Cnew, Dnew, Dn;
+    Eigen::MatrixXd Snew, Anew, Bnew, Cnew, Dnew, Dn;
     VectorXi convergence1 = VectorXi::Constant(5, 1);
     
     int step = 0;
@@ -1003,20 +1003,20 @@ List EstimationT4(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, Ma
 //***------------------------------------------------------------------------------------**
 //***------------------------------setup tuning parameters-------------------------------**
 // [[Rcpp::export]]
-VectorXd setuplambdaT4(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D, int nlam, VectorXd setlam)
+Eigen::VectorXd setuplambdaT4(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D, int nlam, Eigen::VectorXd setlam)
 {
     int n = Y.rows(), q = Y.cols(), G = C.rows(), p = A.rows(), K = B.rows(), j, jj, KG=K*G;
     int r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), r4 = D.cols();
     double lam_max=setlam[0], lam_min=setlam[1], alpha=setlam[2];
-    VectorXd lambda, lambda1, tmp, tmp1;
-    MatrixXd S1, dcbs, V, V_1, Y1 = Y, Gammaj, Gamma_sqrt, svdu, svdd, U, L;
+    Eigen::VectorXd lambda, lambda1, tmp, tmp1;
+    Eigen::MatrixXd S1, dcbs, V, V_1, Y1 = Y, Gammaj, Gamma_sqrt, svdu, svdd, U, L;
     Y1.resize(n*q, 1);
     VectorXi dims = VectorXi::Constant(4, 0);
     dims[0] = r1; dims[1] = r2; dims[2] = r3; dims[3] = r4;
     S1 = TransferModalUnfoldingsT(S, 4, 1, dims);
     dcbs = kroneckerProduct(D,kroneckerProduct(C, B))*(S1.transpose());
     VectorXi id = SEQ(1, p*KG, p);
-    tmp = VectorXd::Constant(p, 0);
+    tmp = Eigen::VectorXd::Constant(p, 0);
     for (j = 0; j < p; j++)
     {
         V = submatrix_col(Z, id.array() + j)*(dcbs.block(0, 0, KG, r1));
@@ -1026,7 +1026,7 @@ VectorXd setuplambdaT4(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd 
         }
         Gammaj = ((V.transpose()*V).array() / n).matrix();
         
-        JacobiSVD<MatrixXd> svd(Gammaj, ComputeThinU | ComputeThinV);
+        JacobiSVD<Eigen::MatrixXd> svd(Gammaj, ComputeThinU | ComputeThinV);
         svdu = svd.matrixU();
         svdd = (svd.singularValues()).asDiagonal();
         Gamma_sqrt = svdu * ((1 / (svdd.diagonal().array().sqrt())).matrix().asDiagonal())*(svdu.transpose());
@@ -1051,7 +1051,7 @@ VectorXd setuplambdaT4(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd 
 }
 //***------------------------------------------------------------------------------------**
 //***--------------------update the jth row of matrix A with penalty---------------------**
-MatrixXd updateT4A_penalty(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D, MatrixXi beta, VectorXi &activeA, double lambda1)
+Eigen::MatrixXd updateT4A_penalty(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D, MatrixXi beta, VectorXi &activeA, double lambda1)
 {
     /*
      Input:
@@ -1088,17 +1088,17 @@ MatrixXd updateT4A_penalty(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, Matri
     }
     
     
-    MatrixXd S1,aj,ajnew,zj;
+    Eigen::MatrixXd S1,aj,ajnew,zj;
     VectorXi dims = VectorXi::Constant(4, 0);
     dims[0] = r1; dims[1] = r2; dims[2] = r3; dims[3] = r4;
     S1 = TransferModalUnfoldingsT(S, 4, 1, dims);
     VectorXi id = SEQ(1, p*KG, p);
-    MatrixXd Vnew = MatrixXd::Constant(n*q, r1*p, 0);
-    MatrixXd Gamma_sqrtn = MatrixXd::Constant(r1, r1*p, 0);
-    MatrixXd dcbs = kroneckerProduct(D,kroneckerProduct(C, B))*(S1.transpose());
-    MatrixXd A1 = A, V, Gammaj, Gamma_sqrt, V_1, D4,L;
+    Eigen::MatrixXd Vnew = Eigen::MatrixXd::Constant(n*q, r1*p, 0);
+    Eigen::MatrixXd Gamma_sqrtn = Eigen::MatrixXd::Constant(r1, r1*p, 0);
+    Eigen::MatrixXd dcbs = kroneckerProduct(D,kroneckerProduct(C, B))*(S1.transpose());
+    Eigen::MatrixXd A1 = A, V, Gammaj, Gamma_sqrt, V_1, D4,L;
     D4 = D*S*kroneckerProduct(C, kroneckerProduct(B, A)).transpose();
-    MatrixXd IDEN = MatrixXd::Identity(r1, r1);
+    Eigen::MatrixXd IDEN = Eigen::MatrixXd::Identity(r1, r1);
     int count=0;
     
     for (j = 0; j < p; j++) {
@@ -1109,7 +1109,7 @@ MatrixXd updateT4A_penalty(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, Matri
         }
         Gammaj = ((V.transpose()*V).array() / n).matrix();
         L = Gammaj.llt().matrixL();
-        if (isnan(UpTriangularInv(L.transpose()).sum())) {
+        if (std::isnan(UpTriangularInv(L.transpose()).sum())) {
             count++;
             Gammaj = ((V.transpose()*V).array() / n).matrix() + (IDEN.array()*1e-4).matrix();
             L = Gammaj.llt().matrixL();
@@ -1119,11 +1119,11 @@ MatrixXd updateT4A_penalty(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, Matri
         A1.row(j) = (QbyR(A.row(j).transpose(), L.transpose(), 0)).transpose();
     }
     
-    MatrixXd Anew = A1;
-    MatrixXd r = Y - Z * (D4.transpose());
+    Eigen::MatrixXd Anew = A1;
+    Eigen::MatrixXd r = Y - Z * (D4.transpose());
     r.resize(n*q, 1);
-    VectorXd ajnorm_old, ajnorm;
-    ajnorm_old = ajnorm = VectorXd::Constant(p, 0);
+    Eigen::VectorXd ajnorm_old, ajnorm;
+    ajnorm_old = ajnorm = Eigen::VectorXd::Constant(p, 0);
     int converged1, step = 0;
     while (step<max_step1)
     {
@@ -1143,7 +1143,7 @@ MatrixXd updateT4A_penalty(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, Matri
             }else{
                 ajnew = updateAj(zj, n, r1, lambda1, alpha, gamma, pen);
             }
-            if (isnan(ajnew.norm())) {
+            if (std::isnan(ajnew.norm())) {
                 stop("error: ajnew is nan!");
             }
             r = r - Vnew.block(0, j*r1, n*q, r1)*(ajnew-aj);
@@ -1178,8 +1178,8 @@ MatrixXd updateT4A_penalty(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, Matri
 //***------------------------------------------------------------------------------------**
 //***-----Old main function: Estimation with penalizing functions in a whole column -----**
 // [[Rcpp::export]]
-List EstPenColumnT4(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D,
-                    VectorXd lambda, List optsList, List optsList_pen)
+List EstPenColumnT4(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D,
+                    Eigen::VectorXd lambda, List optsList, List optsList_pen)
 {
     /*
      Input:
@@ -1232,17 +1232,17 @@ List EstPenColumnT4(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, 
     int l,j, step, max_step=opts.max_step, nlam=opts_pen.nlam, G = opts.G, K = opts.K, KG = K*G, p = opts.p;
     int q = Y.cols(), r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), r4 = D.cols();
     double  likhd0 = 2*pow(10, 6), lambda1, likhd1, eps = opts.eps;
-    MatrixXd Dnew, Anew, Bnew, Snew, Cnew, Dn, Z1, A1, Z2, A2;
+    Eigen::MatrixXd Dnew, Anew, Bnew, Snew, Cnew, Dn, Z1, A1, Z2, A2;
     VectorXi activeA = VectorXi::Constant(p, 0), convergence1 = VectorXi::Constant(5, 1);
     VectorXi df = VectorXi::Constant(nlam, 0);
     MatrixXi betapath = MatrixXi::Constant(p, nlam, 0);
-    VectorXd likhd = VectorXd::Constant(nlam, 0);
-    MatrixXd Apath, Bpath, Cpath, Dpath, Spath, temp;
-    Apath = MatrixXd::Constant(p*r1, nlam, 0);
-    Bpath = MatrixXd::Constant(K*r2, nlam, 0);
-    Cpath = MatrixXd::Constant(G*r3, nlam, 0);
-    Dpath = MatrixXd::Constant(q*r4, nlam, 0);
-    Spath = MatrixXd::Constant(r1*r2*r3*r4, nlam, 0);
+    Eigen::VectorXd likhd = Eigen::VectorXd::Constant(nlam, 0);
+    Eigen::MatrixXd Apath, Bpath, Cpath, Dpath, Spath, temp;
+    Apath = Eigen::MatrixXd::Constant(p*r1, nlam, 0);
+    Bpath = Eigen::MatrixXd::Constant(K*r2, nlam, 0);
+    Cpath = Eigen::MatrixXd::Constant(G*r3, nlam, 0);
+    Dpath = Eigen::MatrixXd::Constant(q*r4, nlam, 0);
+    Spath = Eigen::MatrixXd::Constant(r1*r2*r3*r4, nlam, 0);
     Anew = A;
     A1 = A;
     Z1 = Z;
@@ -1332,7 +1332,7 @@ List EstPenColumnT4(MatrixXd Y, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, 
 //***------------------------------------------------------------------------------------**
 //***---------- Estimation with penalizing functions in a whole column by CV-------------**
 // [[Rcpp::export]]
-List EstPenColumnT4CV(MatrixXd Y, MatrixXd Z, MatrixXd Ytest, MatrixXd Ztest, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D, VectorXd lambda, List optsList, List optsList_pen)
+List EstPenColumnT4CV(Eigen::MatrixXd Y, Eigen::MatrixXd Z, Eigen::MatrixXd Ytest, Eigen::MatrixXd Ztest, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D, Eigen::VectorXd lambda, List optsList, List optsList_pen)
 {
      /*
      Input:
@@ -1383,11 +1383,11 @@ List EstPenColumnT4CV(MatrixXd Y, MatrixXd Z, MatrixXd Ytest, MatrixXd Ztest, Ma
     
     int l,j, step, max_step=opts.max_step, nlam=opts_pen.nlam, KG = opts.K*opts.G, p = A.rows(), r1 = A.cols();
     double  likhd0 = pow(10, 6), lambda1, likhd1, eps = opts.eps;
-    MatrixXd Dnew, Anew, Bnew, Snew, Cnew, Dn, Z1, A1, Z2, A2;
+    Eigen::MatrixXd Dnew, Anew, Bnew, Snew, Cnew, Dn, Z1, A1, Z2, A2;
     VectorXi activeA = VectorXi::Constant(p, 0), convergence1 = VectorXi::Constant(5, 1);
     VectorXi df = VectorXi::Constant(nlam, 0);
     MatrixXi betapath = MatrixXi::Constant(p, nlam, 0);
-    VectorXd likhd = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd = Eigen::VectorXd::Constant(nlam, 0);
     Anew = A;
     A1 = A;
     Z1 = Z;
@@ -1475,34 +1475,34 @@ List EstPenColumnT4CV(MatrixXd Y, MatrixXd Z, MatrixXd Ytest, MatrixXd Ztest, Ma
 //----------------------------------------------------------------**
 //***--------------------setup tuning parameters in composed model------------------**
 // [[Rcpp::export]]
-List setuplambdaV(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D, int nx1, int ng1, int nlam, VectorXd setlam)
+List setuplambdaV(Eigen::MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D, int nx1, int ng1, int nlam, Eigen::VectorXd setlam)
 {
     int n = Y.rows(), q = Y.cols(), p1, r1, r2, r3, K, j, jj, g, count=0;
     double lam_max=setlam[0], lam_min=setlam[1], alpha=setlam[2], max_tmp_t3;
-    VectorXd lambda, lambda1, tmp_t3, tmp1;
-    MatrixXd S_t3, A_t3, B_t3, C_t3, Z_t3, S1, cbs, V, V_1, Y1 = Y, Gammaj, Gamma_sqrt, svdu, svdd;
+    Eigen::VectorXd lambda, lambda1, tmp_t3, tmp1;
+    Eigen::MatrixXd S_t3, A_t3, B_t3, C_t3, Z_t3, S1, cbs, V, V_1, Y1 = Y, Gammaj, Gamma_sqrt, svdu, svdd;
     VectorXi id;
     VectorXi dims_t3 = VectorXi::Constant(3, 0);
     Y1.resize(n*q, 1);
-    tmp_t3 = VectorXd::Constant(nx1, 0);
+    tmp_t3 = Eigen::VectorXd::Constant(nx1, 0);
     
     int r4, G = C.rows(), p2 = A.rows(), KG;
     double max_tmp_t4, max_tmp, max_lam;
-    VectorXd tmp_t4;
-    MatrixXd S_t4=S, A_t4=A, B_t4=B, C_t4=C, D_t4=D, Z_t4=Z, dcbs;
+    Eigen::VectorXd tmp_t4;
+    Eigen::MatrixXd S_t4=S, A_t4=A, B_t4=B, C_t4=C, D_t4=D, Z_t4=Z, dcbs;
     VectorXi dims_t4 = VectorXi::Constant(4, 0);
-    tmp_t4 = VectorXd::Constant(p2, 0);
+    tmp_t4 = Eigen::VectorXd::Constant(p2, 0);
     
     double vnorm_ratio, vnorm_t3, vnorm_t4;
     
     // t3
     vnorm_t3 = 0.0;
     for(g = 0; g < ng1; g++){
-        S_t3 = as<MatrixXd>(Sinit[g]);
-        A_t3 = as<MatrixXd>(Ainit[g]);
-        B_t3 = as<MatrixXd>(Binit[g]);
-        C_t3 = as<MatrixXd>(Cinit[g]);
-        Z_t3 = as<MatrixXd>(Z0[g]);
+        S_t3 = as<Eigen::MatrixXd>(Sinit[g]);
+        A_t3 = as<Eigen::MatrixXd>(Ainit[g]);
+        B_t3 = as<Eigen::MatrixXd>(Binit[g]);
+        C_t3 = as<Eigen::MatrixXd>(Cinit[g]);
+        Z_t3 = as<Eigen::MatrixXd>(Z0[g]);
         p1 = A_t3.rows();
         r1 = A_t3.cols();
         r2 = B_t3.cols();
@@ -1521,7 +1521,7 @@ List setuplambdaV(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List 
             }
             vnorm_t3 = vnorm_t3 + (V.transpose()*V).trace();
             Gammaj = ((V.transpose()*V).array() / n).matrix();
-            JacobiSVD<MatrixXd> svd(Gammaj, ComputeThinU | ComputeThinV);
+            JacobiSVD<Eigen::MatrixXd> svd(Gammaj, ComputeThinU | ComputeThinV);
             svdu = svd.matrixU();
             svdd = (svd.singularValues()).asDiagonal();
             Gamma_sqrt = svdu * ((1 / (svdd.diagonal().array().sqrt())).matrix().asDiagonal())*(svdu.transpose());
@@ -1551,7 +1551,7 @@ List setuplambdaV(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List 
         }
         vnorm_t4 = vnorm_t4 + (V.transpose()*V).trace();
         Gammaj = ((V.transpose()*V).array() / n).matrix();
-        JacobiSVD<MatrixXd> svd(Gammaj, ComputeThinU | ComputeThinV);
+        JacobiSVD<Eigen::MatrixXd> svd(Gammaj, ComputeThinU | ComputeThinV);
         svdu = svd.matrixU();
         svdd = (svd.singularValues()).asDiagonal();
         Gamma_sqrt = svdu * ((1 / (svdd.diagonal().array().sqrt())).matrix().asDiagonal())*(svdu.transpose());
@@ -1584,7 +1584,7 @@ List setuplambdaV(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List 
 //***-------------------------------------------------------------**
 //***------Estimation with penalizing functions in a whole column in composed model ; A can not be compressed into a zero matrix--------------------------------**
 // [[Rcpp::export]]
-List EstPenColumnComposed1(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D, VectorXd lambda, List optsList, List optsList_pen)
+List EstPenColumnComposed1(Eigen::MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D, Eigen::VectorXd lambda, List optsList, List optsList_pen)
 {
     opts.eps = as<double>(optsList["eps"]);
     opts.max_step = as<int>(optsList["max_step"]);
@@ -1618,37 +1618,37 @@ List EstPenColumnComposed1(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
     int l,i,j,pg, step, max_step=opts.max_step, nlam=opts_pen.nlam, ng1 = opts.G1, nx1 = opts.nx1, temp;
     double  likhd0 = 2*pow(10, 6), lambda1, lambda2, likhd1=likhd0, eps = opts.eps, vnorm_ratio = opts_pen.vnorm_ratio;
     
-    MatrixXd S_t3, A_t3, B_t3, C_t3, Dnew_t3, D0_t3, Ynew_t3 = Y, Zj_t3, Zj1_t3, A1_t3;
+    Eigen::MatrixXd S_t3, A_t3, B_t3, C_t3, Dnew_t3, D0_t3, Ynew_t3 = Y, Zj_t3, Zj1_t3, A1_t3;
     VectorXi activeAj_t3, activeA_t3 = VectorXi::Constant(nx1, 0), convergence1_t3 = VectorXi::Constant(4*ng1, 1), breakid_t3 = VectorXi::Constant(ng1, 0);
     MatrixXi betapath_t3 = MatrixXi::Constant(nx1, nlam, 0), df_t3 = MatrixXi::Constant(ng1, nlam, 0);
-    VectorXd likhd_t3 = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd_t3 = Eigen::VectorXd::Constant(nlam, 0);
     
     List fit_t3, S0_t3(ng1), A0_t3(ng1), B0_t3(ng1), C0_t3(ng1), Z_t3(ng1), Zm_t3(ng1), Am_t3(ng1);
     List Shat(nlam), Ahat(nlam), Bhat(nlam), Chat(nlam);
     for(i=0; i<ng1; i++){
-        S0_t3[i] = as<MatrixXd>(Sinit[i]);
-        A0_t3[i] = as<MatrixXd>(Ainit[i]);
-        B0_t3[i] = as<MatrixXd>(Binit[i]);
-        C0_t3[i] = as<MatrixXd>(Cinit[i]);
-        Z_t3[i] = as<MatrixXd>(Z0[i]);
-        Zm_t3[i] = as<MatrixXd>(Z0[i]);
-        Am_t3[i] = as<MatrixXd>(Ainit[i]);
+        S0_t3[i] = as<Eigen::MatrixXd>(Sinit[i]);
+        A0_t3[i] = as<Eigen::MatrixXd>(Ainit[i]);
+        B0_t3[i] = as<Eigen::MatrixXd>(Binit[i]);
+        C0_t3[i] = as<Eigen::MatrixXd>(Cinit[i]);
+        Z_t3[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Zm_t3[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Am_t3[i] = as<Eigen::MatrixXd>(Ainit[i]);
     }
     
     int G2 = opts.G2, K = opts.K, KG = K*G2, p2 = A.rows();
     int q = opts.q, r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), r4 = D.cols(), breakid_t4=0;
     
-    MatrixXd S_t4=S, A_t4=A, B_t4=B, C_t4=C, D_t4=D, Z_t4=Z, Ynew_t4=Y, Dnew_t4, Anew_t4, Bnew_t4, Snew_t4, Cnew_t4, Dn_t4, Z1_t4, A1_t4, Z2_t4, A2_t4, temp_t4;
+    Eigen::MatrixXd S_t4=S, A_t4=A, B_t4=B, C_t4=C, D_t4=D, Z_t4=Z, Ynew_t4=Y, Dnew_t4, Anew_t4, Bnew_t4, Snew_t4, Cnew_t4, Dn_t4, Z1_t4, A1_t4, Z2_t4, A2_t4, temp_t4;
     VectorXi activeA_t4 = VectorXi::Constant(p2, 0), convergence1_t4 = VectorXi::Constant(5, 1), df_t4 = VectorXi::Constant(nlam, 0);
     MatrixXi betapath_t4 = MatrixXi::Constant(p2, nlam, 0);
-    VectorXd likhd_t4 = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd_t4 = Eigen::VectorXd::Constant(nlam, 0);
     
-    MatrixXd Apath, Bpath, Cpath, Dpath, Spath;
-    Apath = MatrixXd::Constant(p2*r1, nlam, 0);
-    Bpath = MatrixXd::Constant(K*r2, nlam, 0);
-    Cpath = MatrixXd::Constant(G2*r3, nlam, 0);
-    Dpath = MatrixXd::Constant(q*r4, nlam, 0);
-    Spath = MatrixXd::Constant(r1*r2*r3*r4, nlam, 0);
+    Eigen::MatrixXd Apath, Bpath, Cpath, Dpath, Spath;
+    Apath = Eigen::MatrixXd::Constant(p2*r1, nlam, 0);
+    Bpath = Eigen::MatrixXd::Constant(K*r2, nlam, 0);
+    Cpath = Eigen::MatrixXd::Constant(G2*r3, nlam, 0);
+    Dpath = Eigen::MatrixXd::Constant(q*r4, nlam, 0);
+    Spath = Eigen::MatrixXd::Constant(r1*r2*r3*r4, nlam, 0);
     Anew_t4 = A;
     A1_t4 = A;
     Z1_t4 = Z;
@@ -1802,7 +1802,7 @@ List EstPenColumnComposed1(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
 //***-------------------------------------------------------------**
 //***------Estimation with penalizing functions in a whole column in composed model ; A can be compressed into a zero matrix--------------------------------**
 // [[Rcpp::export]]
-List EstPenColumnComposed2(MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, MatrixXd Z, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D, VectorXd lambda, List optsList, List optsList_pen)
+List EstPenColumnComposed2(Eigen::MatrixXd Y, List Z0, List Sinit, List Ainit, List Binit, List Cinit, Eigen::MatrixXd Z, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D, Eigen::VectorXd lambda, List optsList, List optsList_pen)
 {
     opts.eps = as<double>(optsList["eps"]);
     opts.max_step = as<int>(optsList["max_step"]);
@@ -1836,37 +1836,37 @@ List EstPenColumnComposed2(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
     int l,i,j,pg, step, max_step=opts.max_step, nlam=opts_pen.nlam, ng1 = opts.G1, nx1 = opts.nx1, temp;
     double  likhd0 = 2*pow(10, 6), lambda1, lambda2, likhd1=likhd0, eps = opts.eps, vnorm_ratio = opts_pen.vnorm_ratio;
     
-    MatrixXd S_t3, A_t3, B_t3, C_t3, Dnew_t3, D0_t3, Ynew_t3 = Y, Zj_t3, Zj1_t3, A1_t3;
+    Eigen::MatrixXd S_t3, A_t3, B_t3, C_t3, Dnew_t3, D0_t3, Ynew_t3 = Y, Zj_t3, Zj1_t3, A1_t3;
     VectorXi activeAj_t3, activeA_t3 = VectorXi::Constant(nx1, 0), convergence1_t3 = VectorXi::Constant(4*ng1, 1), breakid_t3 = VectorXi::Constant(ng1, 0);
     MatrixXi betapath_t3 = MatrixXi::Constant(nx1, nlam, 0), df_t3 = MatrixXi::Constant(ng1, nlam, 0);
-    VectorXd likhd_t3 = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd_t3 = Eigen::VectorXd::Constant(nlam, 0);
     
     List fit_t3, S0_t3(ng1), A0_t3(ng1), B0_t3(ng1), C0_t3(ng1), Z_t3(ng1), Zm_t3(ng1), Am_t3(ng1);
     List Shat(nlam), Ahat(nlam), Bhat(nlam), Chat(nlam);
     for(i=0; i<ng1; i++){
-        S0_t3[i] = as<MatrixXd>(Sinit[i]);
-        A0_t3[i] = as<MatrixXd>(Ainit[i]);
-        B0_t3[i] = as<MatrixXd>(Binit[i]);
-        C0_t3[i] = as<MatrixXd>(Cinit[i]);
-        Z_t3[i] = as<MatrixXd>(Z0[i]);
-        Zm_t3[i] = as<MatrixXd>(Z0[i]);
-        Am_t3[i] = as<MatrixXd>(Ainit[i]);
+        S0_t3[i] = as<Eigen::MatrixXd>(Sinit[i]);
+        A0_t3[i] = as<Eigen::MatrixXd>(Ainit[i]);
+        B0_t3[i] = as<Eigen::MatrixXd>(Binit[i]);
+        C0_t3[i] = as<Eigen::MatrixXd>(Cinit[i]);
+        Z_t3[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Zm_t3[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Am_t3[i] = as<Eigen::MatrixXd>(Ainit[i]);
     }
     
     int G2 = opts.G2, K = opts.K, KG = K*G2, p2 = A.rows();
     int q = opts.q, r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), r4 = D.cols(), breakid_t4=0;
     
-    MatrixXd S_t4=S, A_t4=A, B_t4=B, C_t4=C, D_t4=D, Z_t4=Z, Ynew_t4=Y, Dnew_t4, Anew_t4, Bnew_t4, Snew_t4, Cnew_t4, Dn_t4, Z1_t4, A1_t4, Z2_t4, A2_t4, temp_t4;
+    Eigen::MatrixXd S_t4=S, A_t4=A, B_t4=B, C_t4=C, D_t4=D, Z_t4=Z, Ynew_t4=Y, Dnew_t4, Anew_t4, Bnew_t4, Snew_t4, Cnew_t4, Dn_t4, Z1_t4, A1_t4, Z2_t4, A2_t4, temp_t4;
     VectorXi activeA_t4 = VectorXi::Constant(p2, 0), convergence1_t4 = VectorXi::Constant(5, 1), df_t4 = VectorXi::Constant(nlam, 0);
     MatrixXi betapath_t4 = MatrixXi::Constant(p2, nlam, 0);
-    VectorXd likhd_t4 = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd_t4 = Eigen::VectorXd::Constant(nlam, 0);
     
-    MatrixXd Apath, Bpath, Cpath, Dpath, Spath;
-    Apath = MatrixXd::Constant(p2*r1, nlam, 0);
-    Bpath = MatrixXd::Constant(K*r2, nlam, 0);
-    Cpath = MatrixXd::Constant(G2*r3, nlam, 0);
-    Dpath = MatrixXd::Constant(q*r4, nlam, 0);
-    Spath = MatrixXd::Constant(r1*r2*r3*r4, nlam, 0);
+    Eigen::MatrixXd Apath, Bpath, Cpath, Dpath, Spath;
+    Apath = Eigen::MatrixXd::Constant(p2*r1, nlam, 0);
+    Bpath = Eigen::MatrixXd::Constant(K*r2, nlam, 0);
+    Cpath = Eigen::MatrixXd::Constant(G2*r3, nlam, 0);
+    Dpath = Eigen::MatrixXd::Constant(q*r4, nlam, 0);
+    Spath = Eigen::MatrixXd::Constant(r1*r2*r3*r4, nlam, 0);
     Anew_t4 = A;
     A1_t4 = A;
     Z1_t4 = Z;
@@ -2028,7 +2028,7 @@ List EstPenColumnComposed2(MatrixXd Y, List Z0, List Sinit, List Ainit, List Bin
 //***-------------------------------------------------------------**
 //***------Estimation with penalizing functions in a whole column in composed model by CV; A can not be compressed into a zero matrix--------------------------------**
 // [[Rcpp::export]]
-List EstPenColumnComposed1CV(MatrixXd Y, List Z0, MatrixXd Z, MatrixXd Ytest, List Ztest0, MatrixXd Ztest, List Sinit, List Ainit, List Binit, List Cinit, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D, VectorXd lambda, List optsList, List optsList_pen)
+List EstPenColumnComposed1CV(Eigen::MatrixXd Y, List Z0, Eigen::MatrixXd Z, Eigen::MatrixXd Ytest, List Ztest0, Eigen::MatrixXd Ztest, List Sinit, List Ainit, List Binit, List Cinit, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D, Eigen::VectorXd lambda, List optsList, List optsList_pen)
 {
     opts.eps = as<double>(optsList["eps"]);
     opts.max_step = as<int>(optsList["max_step"]);
@@ -2062,30 +2062,31 @@ List EstPenColumnComposed1CV(MatrixXd Y, List Z0, MatrixXd Z, MatrixXd Ytest, Li
     int l,i,j,pg, step, max_step=opts.max_step, nlam=opts_pen.nlam, ng1 = opts.G1, nx1 = opts.nx1, temp;
     double  likhd0 = 2*pow(10, 6), lambda1, lambda2, likhd1=likhd0, eps = opts.eps, vnorm_ratio = opts_pen.vnorm_ratio;
     
-    MatrixXd S_t3, A_t3, B_t3, C_t3, Dnew_t3, Dn_t3, D0_t3, Ynew_t3 = Y, Ynew, Ztest_t3, Zj_t3, Zj1_t3, A1_t3;
+    Eigen::MatrixXd S_t3, A_t3, B_t3, C_t3, Dnew_t3, Dn_t3, D0_t3, Ynew_t3 = Y, Ynew, Ztest_t3, Zj_t3, Zj1_t3, A1_t3;
     VectorXi activeAj_t3, activeA_t3 = VectorXi::Constant(nx1, 0), convergence1_t3 = VectorXi::Constant(4*ng1, 1), breakid_t3 = VectorXi::Constant(ng1, 0);
     MatrixXi betapath_t3 = MatrixXi::Constant(nx1, nlam, 0), df_t3 = MatrixXi::Constant(ng1, nlam, 0);
-    VectorXd likhd_t3 = VectorXd::Constant(nlam, 0);
-    VectorXd likhd = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd_t3 = Eigen::VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd = Eigen::VectorXd::Constant(nlam, 0);
     
     List fit_t3, S0_t3(ng1), A0_t3(ng1), B0_t3(ng1), C0_t3(ng1), Z_t3(ng1), Zm_t3(ng1), Am_t3(ng1);
     for(i=0; i<ng1; i++){
-        S0_t3[i] = as<MatrixXd>(Sinit[i]);
-        A0_t3[i] = as<MatrixXd>(Ainit[i]);
-        B0_t3[i] = as<MatrixXd>(Binit[i]);
-        C0_t3[i] = as<MatrixXd>(Cinit[i]);
-        Z_t3[i] = as<MatrixXd>(Z0[i]);
-        Zm_t3[i] = as<MatrixXd>(Z0[i]);
-        Am_t3[i] = as<MatrixXd>(Ainit[i]);
+        S0_t3[i] = as<Eigen::MatrixXd>(Sinit[i]);
+        A0_t3[i] = as<Eigen::MatrixXd>(Ainit[i]);
+        B0_t3[i] = as<Eigen::MatrixXd>(Binit[i]);
+        C0_t3[i] = as<Eigen::MatrixXd>(Cinit[i]);
+        Z_t3[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Zm_t3[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Am_t3[i] = as<Eigen::MatrixXd>(Ainit[i]);
     }
     
     int G2 = opts.G2, K = opts.K, KG = K*G2, p2 = A.rows();
-    int q = opts.q, r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), r4 = D.cols(), breakid_t4=0;
+    // int q = opts.q, r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), r4 = D.cols(), breakid_t4=0;
+    int r1 = A.cols(), breakid_t4=0;
     
-    MatrixXd S_t4=S, A_t4=A, B_t4=B, C_t4=C, D_t4=D, Z_t4=Z, Ynew_t4=Y, Dnew_t4, Anew_t4, Bnew_t4, Snew_t4, Cnew_t4, Dn_t4, Z1_t4, A1_t4, Z2_t4, A2_t4, temp_t4, Ztest_t4=Ztest;
+    Eigen::MatrixXd S_t4=S, A_t4=A, B_t4=B, C_t4=C, D_t4=D, Z_t4=Z, Ynew_t4=Y, Dnew_t4, Anew_t4, Bnew_t4, Snew_t4, Cnew_t4, Dn_t4, Z1_t4, A1_t4, Z2_t4, A2_t4, temp_t4, Ztest_t4=Ztest;
     VectorXi activeA_t4 = VectorXi::Constant(p2, 0), convergence1_t4 = VectorXi::Constant(5, 1), df_t4 = VectorXi::Constant(nlam, 0);
     MatrixXi betapath_t4 = MatrixXi::Constant(p2, nlam, 0);
-    VectorXd likhd_t4 = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd_t4 = Eigen::VectorXd::Constant(nlam, 0);
     Anew_t4 = A;
     A1_t4 = A;
     Z1_t4 = Z;
@@ -2237,7 +2238,7 @@ List EstPenColumnComposed1CV(MatrixXd Y, List Z0, MatrixXd Z, MatrixXd Ytest, Li
 //***-------------------------------------------------------------**
 //***------Estimation with penalizing functions in a whole column in composed model by CV; A can be compressed into a zero matrix--------------------------------**
 // [[Rcpp::export]]
-List EstPenColumnComposed2CV(MatrixXd Y, List Z0, MatrixXd Z, MatrixXd Ytest, List Ztest0, MatrixXd Ztest, List Sinit, List Ainit, List Binit, List Cinit, MatrixXd S, MatrixXd A, MatrixXd B, MatrixXd C, MatrixXd D, VectorXd lambda, List optsList, List optsList_pen)
+List EstPenColumnComposed2CV(Eigen::MatrixXd Y, List Z0, Eigen::MatrixXd Z, Eigen::MatrixXd Ytest, List Ztest0, Eigen::MatrixXd Ztest, List Sinit, List Ainit, List Binit, List Cinit, Eigen::MatrixXd S, Eigen::MatrixXd A, Eigen::MatrixXd B, Eigen::MatrixXd C, Eigen::MatrixXd D, Eigen::VectorXd lambda, List optsList, List optsList_pen)
 {
     opts.eps = as<double>(optsList["eps"]);
     opts.max_step = as<int>(optsList["max_step"]);
@@ -2271,30 +2272,31 @@ List EstPenColumnComposed2CV(MatrixXd Y, List Z0, MatrixXd Z, MatrixXd Ytest, Li
     int l,i,j,pg, step, max_step=opts.max_step, nlam=opts_pen.nlam, ng1 = opts.G1, nx1 = opts.nx1, temp;
     double  likhd0 = 2*pow(10, 6), lambda1, lambda2, likhd1=likhd0, eps = opts.eps, vnorm_ratio = opts_pen.vnorm_ratio;
     
-    MatrixXd S_t3, A_t3, B_t3, C_t3, Dnew_t3, Dn_t3, D0_t3, Ynew_t3 = Y, Ynew, Ztest_t3, Zj_t3, Zj1_t3, A1_t3;
+    Eigen::MatrixXd S_t3, A_t3, B_t3, C_t3, Dnew_t3, Dn_t3, D0_t3, Ynew_t3 = Y, Ynew, Ztest_t3, Zj_t3, Zj1_t3, A1_t3;
     VectorXi activeAj_t3, activeA_t3 = VectorXi::Constant(nx1, 0), convergence1_t3 = VectorXi::Constant(4*ng1, 1), breakid_t3 = VectorXi::Constant(ng1, 0);
     MatrixXi betapath_t3 = MatrixXi::Constant(nx1, nlam, 0), df_t3 = MatrixXi::Constant(ng1, nlam, 0);
-    VectorXd likhd_t3 = VectorXd::Constant(nlam, 0);
-    VectorXd likhd = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd_t3 = Eigen::VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd = Eigen::VectorXd::Constant(nlam, 0);
     
     List fit_t3, S0_t3(ng1), A0_t3(ng1), B0_t3(ng1), C0_t3(ng1), Z_t3(ng1), Zm_t3(ng1), Am_t3(ng1);
     for(i=0; i<ng1; i++){
-        S0_t3[i] = as<MatrixXd>(Sinit[i]);
-        A0_t3[i] = as<MatrixXd>(Ainit[i]);
-        B0_t3[i] = as<MatrixXd>(Binit[i]);
-        C0_t3[i] = as<MatrixXd>(Cinit[i]);
-        Z_t3[i] = as<MatrixXd>(Z0[i]);
-        Zm_t3[i] = as<MatrixXd>(Z0[i]);
-        Am_t3[i] = as<MatrixXd>(Ainit[i]);
+        S0_t3[i] = as<Eigen::MatrixXd>(Sinit[i]);
+        A0_t3[i] = as<Eigen::MatrixXd>(Ainit[i]);
+        B0_t3[i] = as<Eigen::MatrixXd>(Binit[i]);
+        C0_t3[i] = as<Eigen::MatrixXd>(Cinit[i]);
+        Z_t3[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Zm_t3[i] = as<Eigen::MatrixXd>(Z0[i]);
+        Am_t3[i] = as<Eigen::MatrixXd>(Ainit[i]);
     }
     
     int G2 = opts.G2, K = opts.K, KG = K*G2, p2 = A.rows();
-    int q = opts.q, r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), r4 = D.cols(), breakid_t4=0;
+    // int q = opts.q, r1 = A.cols(), r2 = B.cols(), r3 = C.cols(), r4 = D.cols(), breakid_t4=0;
+    int breakid_t4=0;
     
-    MatrixXd S_t4=S, A_t4=A, B_t4=B, C_t4=C, D_t4=D, Z_t4=Z, Ynew_t4=Y, Dnew_t4, Anew_t4, Bnew_t4, Snew_t4, Cnew_t4, Dn_t4, Z1_t4, A1_t4, Z2_t4, A2_t4, temp_t4, Ztest_t4=Ztest;
+    Eigen::MatrixXd S_t4=S, A_t4=A, B_t4=B, C_t4=C, D_t4=D, Z_t4=Z, Ynew_t4=Y, Dnew_t4, Anew_t4, Bnew_t4, Snew_t4, Cnew_t4, Dn_t4, Z1_t4, A1_t4, Z2_t4, A2_t4, temp_t4, Ztest_t4=Ztest;
     VectorXi activeA_t4 = VectorXi::Constant(p2, 0), convergence1_t4 = VectorXi::Constant(5, 1), df_t4 = VectorXi::Constant(nlam, 0);
     MatrixXi betapath_t4 = MatrixXi::Constant(p2, nlam, 0);
-    VectorXd likhd_t4 = VectorXd::Constant(nlam, 0);
+    Eigen::VectorXd likhd_t4 = Eigen::VectorXd::Constant(nlam, 0);
     Anew_t4 = A;
     A1_t4 = A;
     Z1_t4 = Z;

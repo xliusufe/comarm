@@ -1,6 +1,60 @@
-marm4 <- 
-  function(Y,X,group=NULL,K=6,r1=NULL,r2=NULL,r3=NULL,r4=NULL,method="BIC",ncv=10,penalty="LASSO",lambda=NULL,D0=NULL,
-           intercept=TRUE,nlam=20,degr=3,lam_min=0.01, eps=1e-4,max_step=10,eps1=1e-4,max_step1=10,gamma=2,dfmax=NULL,alpha=1){
+
+#' Fit structural MARM with sparsity assumption and fixed ranks.
+#'
+#' Fit a structural integrative multi-view multivariate additive model (structural MARM) using B-splines 
+#' with given ranks (\eqn{r_{1}, r_{2}, r_{3}, r_{4}}). A fourth-order coefficient tensor can be estimated 
+#' by this function. The group sparse penalty such as \code{LASSO}, \code{MCP} or \code{SCAD} and the 
+#' coordinate descent algorithm are used to yield a sparsity estimator. The \code{BIC} or 
+#' \code{cross-validation} method are used to search the optimal regularization parameter.
+#'
+#' @param Y A \eqn{n\times q} numeric matrix of responses.
+#' @param X A \eqn{n\times p} numeric design matrix for the model, where \eqn{p=\sum_{g}p_g}.
+#' @param group A \eqn{p} vector of the grouping index of predictors, typically set as 
+#'        \code{group = rep(1, p)}. Default groups \eqn{group = c(1, 1, 1, 2, 2, 2)}, which partitions 
+#'        the predictors into groups.
+#' @param K The number of B-spline basis functions, typically \code{6} for cubic splines.
+#' @param r1 The first dimension of the tensor. Default is \code{2}.
+#' @param r2 The second dimension of the tensor. Default is \code{2}.
+#' @param r3 The third dimension of the tensor. Default is \code{2}.
+#' @param r4 The fourth dimension of the tensor. Default is \code{2}.
+#' @param method The method to be applied to select regularization parameters, either \code{BIC} or 
+#'        \code{CV}. Default is \code{BIC}.
+#' @param ncv The number of cross-validation folds. Default is \code{10}. If \code{method} is not 
+#'        \code{CV}, \code{ncv} is not used.
+#' @param penalty The penalty to be applied to the model, options are \code{LASSO}, \code{MCP}, or 
+#'        \code{SCAD}.
+#' @param lambda A sequence of lambda values, calculated by default over a range set by \code{nlam}.
+#' @param D0 Initialization values for the model, includes five matrices: \code{S}, \code{A}, \code{B}, 
+#'        \code{C}, and \code{D}.
+#' @param intercept Indicates if an intercept should be fitted. Default is \code{TRUE}.
+#' @param degr The number of knots of the B-spline base function. Default is \code{3}.
+#' @param nlam The number of lambda values. Default is \code{20}.
+#' @param lam_min The smallest lambda value, as a fraction of the largest. Default is \code{0.01}.
+#' @param eps Convergence threshold for the overall optimization. Default is \code{1e-4}.
+#' @param max_step Maximum number of iterations allowed. Default is \code{10}.
+#' @param eps1 Convergence threshold for the coordinate descent method. Default is \code{1e-4}.
+#' @param max_step1 Maximum iterations for the coordinate descent. Default is \code{10}.
+#' @param gamma Tuning parameter for the MCP or SCAD penalties.
+#' @param dfmax Upper limit on the number of non-zero coefficients.
+#' @param alpha Tuning parameter balancing LASSO, MCP/SCAD, and ridge penalties. \code{alpha = 1} 
+#'        favors LASSO/MCP/SCAD, while \code{alpha = 0} (not supported) would indicate pure ridge regression.
+#'
+#' @return A list containing estimates and model parameters, including tensors and matrices of coefficients.
+#' @examples
+#' library(comarm)
+#' n <- 200; q <- 5; p <- 100; s <- 3; ng = 4
+#' group <- rep(1:ng, each = p/ng)
+#' mydata <- marm4.sim.fbs(n, q, p, s, group, isfixedR = 1)
+#' fit <- with(mydata, marm4(Y, X, group, K, r1, r2, r3, r4, D0 = D0, nlam = 5))
+#'
+#' @seealso \code{\link{marm4.dr}}
+#' @useDynLib comarm, .registration = TRUE
+#' @export
+marm4 <- function(Y, X, group = NULL, K = 6, r1 = NULL, r2 = NULL, r3 = NULL, r4 = NULL,
+                  method = "BIC", ncv = 10, penalty = "LASSO", lambda = NULL, D0 = NULL,
+                  intercept = TRUE, nlam = 20, degr = 3, lam_min = 0.01,
+                  eps = 1e-4, max_step = 10, eps1 = 1e-4, max_step1 = 10,
+                  gamma = 2, dfmax = NULL, alpha = 1) {
     n <- dim(Y)[1]
     q <- dim(Y)[2]
     nx <- ncol(X)

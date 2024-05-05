@@ -1,6 +1,6 @@
-Package: mulste
+Package: comarm
 Type: Package
-Title: mulste
+Title: comarm
 Version: 0.1.0
 Authors@R: c(person(given = "Xu", family = "Liu", role = c("aut","cre"), email = "liu.xu@sufe.edu.cn"),
              person(given = "Yiming", family = "Liu", role = "aut"),
@@ -15,9 +15,9 @@ Description: Multi-omics data integration with multi-view learning via composed 
 License: GPL (>= 2)
 Imports: splines, Rcpp (>= 0.11.15), RcppEigen (>= 0.3.2.3.0)
 LinkingTo: Rcpp, RcppEigen
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.1
 NeedsCompilation: yes
 Repository: github
-URL: https://github.com/xliusufe/mulste
+URL: https://github.com/xliusufe/comarm
 Encoding: UTF-8
-Packaged: 2023-10-14 23:40:17 UTC; liuyiming
+Packaged: 2024-05-04 16:15:37 UTC; ZXiao
